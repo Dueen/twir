@@ -15,7 +15,7 @@ const Header = () => {
           </span>
         </h2>
         <a href="https://www.github.com/dueen/twir.io">
-          <Github className="h-6 w-6 fill-current text-black dark:text-white lg:h-8 lg:w-8" />
+          <Github className="h-8 w-8 fill-current text-black dark:text-white" />
         </a>
       </div>
     </header>
