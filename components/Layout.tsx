@@ -9,7 +9,7 @@ type Props = React.PropsWithChildren<{}>;
 
 const Layout: React.FC<Props> = ({ children }) => {
   return (
-    <div className="no-scrollbar grid grid-flow-row grid-cols-12">
+    <div className="grid grid-flow-row grid-cols-12">
       <Header />
       <SideNav />
       <Main>{children}</Main>
