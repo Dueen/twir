@@ -14,7 +14,7 @@ const Header = () => {
             &nbsp;interface.
           </span>
         </h2>
-        <a href="https://wwww.github.com/dueen/twir.io">
+        <a href="https://www.github.com/dueen/twir.io">
           <Github className="h-6 w-6 fill-current text-black dark:text-white lg:h-8 lg:w-8" />
         </a>
       </div>
