@@ -14,7 +14,7 @@ const Home: NextPage = () => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="h-screen min-h-[100px] w-full"></div>
+      <div className="w-full"></div>
     </React.Fragment>
   );
 };

@@ -4,7 +4,7 @@ type Props = React.PropsWithChildren<{}>;
 
 const Main: React.FC<Props> = ({ children }) => {
   return (
-    <main className="prose col-span-full col-start-3 max-w-none overflow-y-auto text-center">
+    <main className="col-span-full col-start-2 min-h-screen overflow-y-auto xl:col-start-3">
       {children}
     </main>
   );
