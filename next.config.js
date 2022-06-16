@@ -22,6 +22,7 @@ const parseSourceUrl = (name, index) => {
 };
 
 // TODO: include date for sorting
+// TODO: parse the title
 const mapIssues = (issue, idx, array) => ({
   name: issue.name,
   path: issue.path,
@@ -33,7 +34,10 @@ const mapIssues = (issue, idx, array) => ({
 /** @type {import('next').NextConfig} */
 module.exports = async (phase, { defaultConfig }) => {
   const allIssues = await downloadDirList("content");
-  const initialIssues = allIssues.filter(filterMarkdown).map(mapIssues);
+  const initialIssues = allIssues
+    .filter(filterMarkdown)
+    .map(mapIssues)
+    .slice(0, 10);
   const issues = JSON.stringify(initialIssues);
 
   fs.writeJson(`data/issues.json`, issues);
