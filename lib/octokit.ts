@@ -60,7 +60,7 @@ async function downloadFile(path: string): Promise<string> {
  * @returns a promise that resolves to a file ListItem of the files/directories in the given directory (not recursive)
  */
 async function downloadDirList(path: string) {
-  const { data } = await octokit.repos.getContent({
+  const { data, status } = await octokit.repos.getContent({
     owner: REPO_OWNER,
     repo: REPO_NAME,
     path,
@@ -72,7 +72,15 @@ async function downloadDirList(path: string) {
     );
   }
 
+  if (status !== 200) {
+    throw new Error(
+      `Tried to download content from ${path}. GitHub returned a status code of ${status}`
+    );
+  }
+
   return data;
 }
+
+export type DirectoryList = Awaited<ReturnType<typeof downloadDirList>>;
 
 export { downloadFile, downloadDirList };

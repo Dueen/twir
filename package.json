@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "1": "/// octokit library needs to be compiled for next config",
+    "build": "tsc lib/octokit.ts && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -25,6 +26,7 @@
     "autoprefixer": "^10.4.7",
     "eslint": "8.17.0",
     "eslint-config-next": "12.1.6",
+    "fs-extra": "^10.1.0",
     "postcss": "^8.4.14",
     "prettier": "^2.7.0",
     "prettier-plugin-tailwindcss": "^0.1.11",

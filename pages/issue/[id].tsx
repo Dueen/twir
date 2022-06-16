@@ -49,7 +49,6 @@ export async function getStaticProps({
     const content = await downloadFile(
       "content/2013-06-07-this-week-in-rust.markdown"
     );
-    console.log({ content });
 
     const cleanContent = content
       // fixes: Unexpected character `!` (U+0021)
@@ -57,15 +56,16 @@ export async function getStaticProps({
       .replace(/\<\!.*\>/, "")
       // fixes: to create a link in MDX, use `[text](url)`
       // maps <https://....> to [text](url)
-      .replace(/<([http|mailto:].*)>/gi, (_, p) => `[${p}](${p})`)
+      .replace(
+        /<([http|mailto:].*)>/gi,
+        (_, p) => `[${p.replace("mailto:", "")}](${p})`
+      )
       // fixes: Could not parse expression with acorn
       // replaces lines inside of blockqoute with:  > ...
       .replace(
         /\{\% blockquote \%\}(.*)\{\% endblockquote \%\}/gis,
         convertBlockQoute
       );
-
-    console.log({ cleanContent });
 
     const mdxContent = await serialize(cleanContent, {
       mdxOptions: {
