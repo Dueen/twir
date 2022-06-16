@@ -14,7 +14,6 @@ type MappedDirectoryList = {
 // TODO: add radix tabs -> sort by latest, oldest, etc.
 const SideNav = () => {
   const issues = initialIssues;
-  console.log(issues[0]);
   return (
     <nav className="no-scrollbar col-span-1 col-start-1 h-full max-h-screen w-full overflow-y-auto overflow-x-hidden border-r border-stone-200 dark:border-stone-600 xl:col-span-2">
       <ul className="flex h-full flex-col">

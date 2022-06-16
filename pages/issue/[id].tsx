@@ -1,92 +1,85 @@
 import * as React from "react";
-import Link from "next/link";
 import Head from "next/head";
-import remarkGfm from "remark-gfm";
-import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
 
-import { downloadDirList, downloadFile } from "@lib/octokit";
+import { downloadFile } from "@lib/octokit";
+import { issues } from "@data/issues";
+import { parse } from "@lib/mdx";
 
 import type {
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next/types";
 
-type Params = {
-  id: string;
-};
-
 type GetStaticPropsResult = InferGetStaticPropsType<typeof getStaticProps>;
 
-const convertBlockQoute = (_: string, p: string) =>
-  p
-    .split("\n")
-    .map((line: string) => `> ${line}`)
-    .join("\n");
-
 export async function getStaticPaths() {
-  const response = await fetch(
-    "https://jsonplaceholder.typicode.com/posts?_page=1"
-  );
-  const postList = await response.json();
+  const paths = issues.map((issue: any) => ({
+    params: { id: issue.id },
+  }));
   return {
-    paths: postList.map((post: any) => {
-      return {
-        params: {
-          id: `${post.id}`,
-        },
-      };
-    }),
+    paths: paths,
     fallback: false,
   };
 }
 
-export async function getStaticProps({
-  params,
-}: GetStaticPropsContext<Params>) {
-  // fetch the issue from github api
-  if (params && params.id) {
-    const content = await downloadFile(
-      "content/2013-06-07-this-week-in-rust.markdown"
-    );
+// /***** USING THIS TO CATCH THE ERRORS AND DEBUG *****/
 
-    const cleanContent = content
-      // fixes: Unexpected character `!` (U+0021)
-      //
-      .replace(/\<\!.*\>/, "")
-      // fixes: to create a link in MDX, use `[text](url)`
-      // maps <https://....> to [text](url)
-      .replace(
-        /<([http|mailto:].*)>/gi,
-        (_, p) => `[${p.replace("mailto:", "")}](${p})`
-      )
-      // fixes: Could not parse expression with acorn
-      // replaces lines inside of blockqoute with:  > ...
-      .replace(
-        /\{\% blockquote \%\}(.*)\{\% endblockquote \%\}/gis,
-        convertBlockQoute
-      );
+// export async function getStaticProps({
+//   params,
+// }: GetStaticPropsContext<Params>) {
+//   if (params && params.id) {
+//     const issue = issues.find(
+//       ({ id }: any) => String(id) === String(params.id)
+//     );
+//     const title = issue.title || "This Week In Rust";
+//     const content = await downloadFile(issue.path);
 
-    const mdxContent = await serialize(cleanContent, {
-      mdxOptions: {
-        // remarkPlugins: [remarkGfm],
-      },
-    });
-    return {
-      props: { title: "", body: "", mdxContent },
-    };
-  }
-  const mdxContent = await serialize("# Content not found");
+//     const cleanContent = content
+//       // fixes: Unexpected character `!` (U+0021)
+//       //
+//       .replace(/\<\!.*\>/, "")
+//       // fixes: to create a link in MDX, use `[text](url)`
+//       // maps <https://....> to [text](url)
+//       .replace(linkRegex, replceLinks)
+//       // fixes: Could not parse expression with acorn
+//       // replaces lines inside of blockqoute with:  > ...
+//       .replace(
+//         /\{\% blockquote \%\}(.*)\{\% endblockquote \%\}/gis,
+//         replaceBlockQoute
+//       )
+//       // fixes: Could not parse expression with acorn
+//       // replaces the pull request with: [description](url)
+//       .replace(pullRequestRegex, replacePullRequest);
+
+//     const mdxContent = await serialize(cleanContent, {
+//       mdxOptions: {
+//         remarkPlugins: [remarkGfm],
+//       },
+//     });
+//     return {
+//       props: { title, mdxContent },
+//     };
+//   }
+//   const mdxContent = await serialize("# Content not found");
+//   return {
+//     props: { title: "This Week In Rust", mdxContent },
+//   };
+// }
+
+export async function getStaticProps({ params }: GetStaticPropsContext) {
+  const issue = issues.find(({ id }: any) => id === params?.id);
+  const title = issue.title || "This Week In Rust";
+  const content = await downloadFile(issue.path);
+  issue.content = content;
+
+  const mdxContent = await parse(issue);
   return {
-    props: { title: "", body: "", mdxContent },
+    props: { title, mdxContent },
   };
 }
 
-export default function Issue({
-  title,
-  body,
-  mdxContent,
-}: GetStaticPropsResult) {
+export default function Issue({ title, mdxContent }: GetStaticPropsResult) {
   return (
     <React.Fragment>
       <Head>
@@ -98,3 +91,9 @@ export default function Issue({
     </React.Fragment>
   );
 }
+
+/**
+ * FIXME: FAILING ISSUES
+ * 6: Unexpected character `+` (U+002B) in name -> (<corey+blog@octayn.net>)
+ * 32: Unexpected character `)` (U+0029) in name -> [boehm-rs][https://github.com/huonw/boehm-rs), a `Gc<T](https://github.com/huonw/boehm-rs), a `Gc<T)` type with a real
+ */

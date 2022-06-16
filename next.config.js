@@ -18,10 +18,6 @@ const parseSourceUrl = (name, index) => {
   const slug = name.replace(/\.(mdx?|markdown)$/, "");
   const [year, month, day, ...rest] = slug.split("-");
   const path = rest.join("-");
-  console.log(
-    `sourceURL ${index} :`,
-    `${baseURL}${year}/${month}/${day}/${path}-${index}/`
-  );
   return `${baseURL}${year}/${month}/${day}/${path}-${index}/`;
 };
 
@@ -29,11 +25,12 @@ const parseSourceUrl = (name, index) => {
 const mapIssues = (issue, idx, array) => ({
   name: issue.name,
   path: issue.path,
-  id: idx + 1,
+  id: String(idx + 1),
   sourceUrl: parseSourceUrl(issue.name, idx + 1),
   // date: new Date(),
 });
 
+/** @type {import('next').NextConfig} */
 module.exports = async (phase, { defaultConfig }) => {
   const allIssues = await downloadDirList("content");
   const initialIssues = allIssues.filter(filterMarkdown).map(mapIssues);
