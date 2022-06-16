@@ -67,6 +67,8 @@ export async function getStaticPaths() {
 //   };
 // }
 
+const DAY_IN_SECONDS = 24 * 60 * 60;
+
 export async function getStaticProps({ params }: GetStaticPropsContext) {
   const issue = issues.find(({ id }: any) => id === params?.id);
   const title = issue.title || "This Week In Rust";
@@ -76,6 +78,10 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   const mdxContent = await parse(issue);
   return {
     props: { title, mdxContent },
+    // Next.js will attempt to re-generate the page:
+    // - When a request comes in
+    // - At most once every day
+    revalidate: DAY_IN_SECONDS,
   };
 }
 
