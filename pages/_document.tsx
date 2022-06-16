@@ -12,7 +12,7 @@ class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head />
-        <body className="no-scrollbar">
+        <body className="no-scrollbar bg-stone-50 dark:bg-stone-800">
           <Main />
           <NextScript />
         </body>

@@ -16,7 +16,7 @@ const SideNav = () => {
   const issues = JSON.parse(initialIssues) as Array<MappedDirectoryList>;
   console.log(issues[0]);
   return (
-    <nav className="no-scrollbar col-span-1 col-start-1 h-full max-h-screen w-full overflow-y-auto overflow-x-hidden border-r border-stone-200 bg-stone-50 dark:border-stone-600 dark:bg-stone-800 xl:col-span-2">
+    <nav className="no-scrollbar col-span-1 col-start-1 h-full max-h-screen w-full overflow-y-auto overflow-x-hidden border-r border-stone-200 dark:border-stone-600 xl:col-span-2">
       <ul className="flex h-full flex-col">
         {issues.map((issue) => (
           <Link key={issue.name} href={`/issue/${issue.id}`}>
