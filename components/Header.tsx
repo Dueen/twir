@@ -1,6 +1,5 @@
 import * as React from "react";
-
-import GithubIcon from "@components/icons/Github";
+import GitHubButton from "react-github-btn";
 
 const Header = () => {
   return (
@@ -14,9 +13,29 @@ const Header = () => {
             &nbsp;interface.
           </span>
         </h2>
-        <a href="https://www.github.com/dueen/twir.io">
-          <GithubIcon className="h-8 w-8 fill-current text-black dark:text-white" />
-        </a>
+        <div className="flex items-center justify-center space-x-2 pt-3">
+          {/* TODO: Pay respects to the Original Github (OG) */}
+          {/* <GitHubButton
+            href="https://github.com/rust-lang/this-week-in-rust"
+            data-color-scheme="no-preference: light; light: light; dark: dark_dimmed;"
+            data-icon="octicon-star"
+            data-size="large"
+            data-show-count="true"
+            aria-label="Star rust-lang/this-week-in-rust on GitHub"
+          >
+            Star on Github
+          </GitHubButton> */}
+          <GitHubButton
+            href="https://github.com/dueen/twir.io"
+            data-color-scheme="no-preference: light; light: light; dark: dark_dimmed;"
+            data-icon="octicon-star"
+            data-size="large"
+            data-show-count="true"
+            aria-label="Star twir.io on GitHub"
+          >
+            Star on Github
+          </GitHubButton>
+        </div>
       </div>
     </header>
   );
