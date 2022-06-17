@@ -6,17 +6,25 @@ type IssueCardProps = React.PropsWithChildren<{
   title: string;
   description: string;
   id: string;
+  active?: boolean;
 }>;
 
-const IssueCard: React.FC<IssueCardProps> = ({ title, description, id }) => {
+const IssueCard: React.FC<IssueCardProps> = ({
+  title,
+  description,
+  id,
+  active,
+}) => {
   return (
     <Link key={id} href={`/issue/${id}`}>
       <a
         className={cx(
-          "m-2 rounded-md bg-stone-200 p-2",
-          "text-black shadow-stone-500 transition duration-200",
-          "hover:bg-slate-300 hover:text-amber-500/90 hover:no-underline hover:shadow-sm",
-          "dark:bg-stone-700 dark:text-white dark:hover:bg-stone-600"
+          active
+            ? "bg-amber-500 text-black hover:bg-amber-600"
+            : "bg-stone-200 hover:bg-amber-500/40 hover:text-amber-600 dark:bg-stone-700  dark:text-white dark:hover:text-amber-600",
+          "m-2 rounded-md p-2",
+          "shadow-stone-500 transition duration-200",
+          "hover:no-underline hover:shadow-sm"
         )}
       >
         <button className="flex max-w-sm flex-wrap items-center text-left">

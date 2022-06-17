@@ -1,6 +1,7 @@
 import * as React from "react";
 import Head from "next/head";
 import { MDXRemote } from "next-mdx-remote";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { downloadFile } from "@lib/octokit";
 import { issues } from "@data/issues";
@@ -71,7 +72,7 @@ const DAY_IN_SECONDS = 24 * 60 * 60;
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
   const issue = issues.find(({ id }: any) => id === params?.id);
-  const title = issue.title || "This Week In Rust";
+  const title = issue.title || `This Week In Rust ${issue.id}`;
   const content = await downloadFile(issue.path);
   issue.content = content;
 
@@ -91,9 +92,18 @@ export default function Issue({ title, mdxContent }: GetStaticPropsResult) {
       <Head>
         <title>{title}</title>
       </Head>
-      <div className="prose prose-stone max-w-none bg-stone-50 p-10 text-left dark:prose-invert dark:bg-stone-800">
-        <MDXRemote {...mdxContent} components={{}} />
-      </div>
+      <AnimatePresence exitBeforeEnter presenceAffectsLayout>
+        <motion.div
+          className="prose prose-stone max-w-none bg-stone-50 p-10 text-left dark:prose-invert dark:bg-stone-800"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          key={title}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+        >
+          <MDXRemote {...mdxContent} components={{}} />
+        </motion.div>
+      </AnimatePresence>
     </React.Fragment>
   );
 }
