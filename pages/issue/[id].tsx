@@ -2,6 +2,8 @@ import * as React from "react";
 import Head from "next/head";
 import { MDXRemote } from "next-mdx-remote";
 import { motion, AnimatePresence } from "framer-motion";
+import remarkGfm from "remark-gfm";
+import { serialize } from "next-mdx-remote/serialize";
 
 import { downloadFile } from "@lib/octokit";
 import { issues } from "@data/issues";
@@ -68,17 +70,72 @@ export async function getStaticPaths() {
 //   };
 // }
 
+const linkRegex = /[<|(]([http|mailto:].*)[)|>]/gi;
+// prettier-ignore
+const replceLinks = (match: string, p1: string) => `[${p1.replace("mailto:", "")}](${p1})`;
+
+// prettier-ignore
+const replaceBlockQoute = (match: string, p1: string) => p1.split("\n").map((line: string) => `> ${line}`).join("\n");
+
+// prettier-ignore
+const pullRequestRegex = /\{\% blockquote \@dotdash (.*) \%\}([\s\S]*?)\{\% endblockquote \%\}/gi;
+// prettier-ignore
+const replacePullRequest = (match: string, p1: string, p2: string) =>`[${p2}](${p1})`;
+
+const CONTENT_NOT_FOUND = (issue: any) => `
+# Content not found
+## Visit the original issue [here](${issue.sourceUrl})
+`;
+
+const options = {
+  mdxOptions: {
+    remarkPlugins: [remarkGfm],
+  },
+};
+
 const DAY_IN_SECONDS = 24 * 60 * 60;
 
-export async function getStaticProps({ params }: GetStaticPropsContext) {
-  const issue = issues.find(({ id }: any) => id === params?.id);
-  const title = issue.title || `This Week In Rust ${issue.id}`;
-  const content = await downloadFile(issue.path);
-  issue.content = content;
+const convertBlockQoute = (_: string, p: string) =>
+  p
+    .split("\n")
+    .map((line: string) => `> ${line}`)
+    .join("\n");
 
-  const mdxContent = await parse(issue);
+export async function getStaticProps({ params }: GetStaticPropsContext) {
+  // fetch the issue from github api
+  if (params && params.id) {
+    const issue = issues.find(({ id }: any) => id === params?.id);
+    // @ts-ignore
+    const content = await downloadFile(issue.path);
+    const cleanContent = content
+      // fixes: Unexpected character `!` (U+0021)
+      //
+      .replace(/\<\!.*\>/, "")
+      // fixes: to create a link in MDX, use `[text](url)`
+      // maps <https://....> to [text](url)
+      .replace(linkRegex, replceLinks)
+      // fixes: Could not parse expression with acorn
+      // replaces lines inside of blockqoute with:  > ...
+      .replace(
+        /\{\% blockquote \%\}(.*)\{\% endblockquote \%\}/gis,
+        replaceBlockQoute
+      )
+      // fixes: Could not parse expression with acorn
+      // replaces the pull request with: [description](url)
+      .replace(pullRequestRegex, replacePullRequest);
+
+    const mdxContent = await serialize(cleanContent, {
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+      },
+    });
+    return {
+      props: { title: "", body: "", mdxContent },
+    };
+  }
+  const mdxContent = await serialize("# Content not found");
   return {
-    props: { title, mdxContent },
+    props: { title: "", body: "", mdxContent },
     // Next.js will attempt to re-generate the page:
     // - When a request comes in
     // - At most once every day

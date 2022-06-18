@@ -1,28 +1,56 @@
 import * as React from "react";
+import { useAtom, atom, useAtomValue } from "jotai";
+import { atomWithStorage } from "jotai/utils";
+import { issues } from "@data/issues";
 
-type IssuesProviderProps = React.PropsWithChildren<{ initialIssues: any[] }>;
+import type { RESET } from "jotai/utils";
+type SortValues = "newest" | "oldest";
+type Issue = typeof issues[number];
+type Issues = Array<Issue>;
+type IssuesProviderProps = React.PropsWithChildren<{}>;
+type IssuesProviderState = {
+  issues: Issues;
+  sortBy: SortValues;
+  setSortBy: (update: typeof RESET | React.SetStateAction<SortValues>) => void;
+};
 
-const IssuesContext = React.createContext<any[]>([]);
+export const IssuesContext = React.createContext<IssuesProviderState | null>(
+  null
+);
 
-const IssuesProvider: React.FC<IssuesProviderProps> = ({
-  children,
-  initialIssues = [],
-}) => {
-  const [issues, setIssues] = React.useState(initialIssues);
+// prettier-ignore
+const sortByNewest = (a: Issue, b: Issue) => new Date(b.date).getTime() - new Date(a.date).getTime();
+// prettier-ignore
+const sortByOldest = (a: Issue, b: Issue) => new Date(a.date).getTime() - new Date(b.date).getTime();
 
-  React.useEffect(() => {}, [issues]);
+export const sortByAtom = atomWithStorage<SortValues>("sortBy", "newest");
+
+export const issuesAtom = atom<Issues>(issues);
+
+export const sortedIssuesAtom = atom((get) => {
+  const sortBy = get(sortByAtom);
+  const issues = get(issuesAtom);
+  const sortedIssues = issues.sort(
+    sortBy === "newest" ? sortByNewest : sortByOldest
+  );
+  return sortedIssues;
+});
+
+export const IssuesProvider: React.FC<IssuesProviderProps> = ({ children }) => {
+  const issues = useAtomValue(sortedIssuesAtom);
+  const [sortBy, setSortBy] = useAtom(sortByAtom);
 
   return (
-    <IssuesContext.Provider value={issues}>{children}</IssuesContext.Provider>
+    <IssuesContext.Provider value={{ issues, sortBy, setSortBy }}>
+      {children}
+    </IssuesContext.Provider>
   );
 };
 
-const useIssues = () => {
+export const useIssues = () => {
   const context = React.useContext(IssuesContext);
-  if (context === undefined) {
+  if (context === null) {
     throw new Error("useIssues must be used within a IssuesProvider");
   }
   return context;
 };
-
-export { IssuesContext, IssuesProvider, useIssues };
