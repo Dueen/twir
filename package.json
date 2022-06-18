@@ -17,6 +17,7 @@
     "@radix-ui/react-toggle-group": "^0.1.6-rc.43",
     "@radix-ui/react-tooltip": "^0.1.8-rc.45",
     "classnames": "^2.3.1",
+    "date-fns": "^2.28.0",
     "framer-motion": "^6.3.11",
     "jotai": "^1.7.2",
     "next": "12.1.6",

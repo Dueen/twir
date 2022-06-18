@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useRouter } from "next/router";
+import { format } from "date-fns";
 
 import IssueCard from "./IssueCard";
 import Toggle from "./Toggle";
@@ -25,7 +26,7 @@ const SideNav = () => {
             <IssueCard
               key={issue.name}
               title={issue.title}
-              description={issue.name}
+              description={format(new Date(issue.date), "MMM dd, yyyy")}
               id={issue.id}
               active={issue.id === currentIssue}
             />
