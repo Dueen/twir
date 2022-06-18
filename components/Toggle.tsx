@@ -17,7 +17,7 @@ const Toggle = () => {
       type="single"
       value={sortBy}
       aria-label="Text alignment"
-      className="my-3 mx-2 flex rounded-xl dark:bg-stone-500"
+      className="my-3 mx-2 flex rounded-xl border border-stone-200 bg-stone-200 dark:border-stone-500 dark:bg-stone-500"
       onValueChange={(value) => setSortBy(value as typeof sortBy)}
     >
       <ToggleGroupPrimitive.Item
