@@ -66,15 +66,15 @@ async function downloadDirList(path: string) {
     path,
   });
 
-  if (!Array.isArray(data)) {
-    throw new Error(
-      `Tried to download content from ${path}. GitHub did not return an array of files. This should never happen...`
-    );
-  }
-
   if (status !== 200) {
     throw new Error(
       `Tried to download content from ${path}. GitHub returned a status code of ${status}`
+    );
+  }
+
+  if (!Array.isArray(data)) {
+    throw new Error(
+      `Tried to download content from ${path}. GitHub did not return an array of files. This should never happen...`
     );
   }
 
