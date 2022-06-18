@@ -91,6 +91,7 @@ const options = {
   mdxOptions: {
     remarkPlugins: [remarkGfm],
   },
+  parseFrontmatter: true,
 };
 
 const DAY_IN_SECONDS = 24 * 60 * 60;
@@ -101,15 +102,35 @@ const convertBlockQoute = (_: string, p: string) =>
     .map((line: string) => `> ${line}`)
     .join("\n");
 
+const insertFrontMatter = (content: string) => {
+  const match = /[\n]{2}/.exec(content);
+  if (match) {
+    // Add opening separator
+    let newString = "---\n" + content;
+
+    // Add closing separator
+    const closingSeparator = "\n---";
+    newString =
+      newString.slice(0, match.index + closingSeparator.length) +
+      closingSeparator +
+      newString.slice(match.index + closingSeparator.length);
+
+    return newString;
+  } else {
+    return content;
+  }
+};
+
 export async function getStaticProps({ params }: GetStaticPropsContext) {
-  // fetch the issue from github api
   if (params && params.id) {
-    const issue = issues.find(({ id }: any) => id === params?.id);
-    // @ts-ignore
+    const issue = issues.find(({ id }: any) => id === params?.id) || issues[0];
+
+    // fetch the issue from github api
     const content = await downloadFile(issue.path);
-    const cleanContent = content
+    const withFrontmatter = insertFrontMatter(content);
+    const cleanContent = withFrontmatter
       // fixes: Unexpected character `!` (U+0021)
-      //
+      // replaces <!...> with empty string
       .replace(/\<\!.*\>/, "")
       // fixes: to create a link in MDX, use `[text](url)`
       // maps <https://....> to [text](url)
@@ -124,18 +145,14 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
       // replaces the pull request with: [description](url)
       .replace(pullRequestRegex, replacePullRequest);
 
-    const mdxContent = await serialize(cleanContent, {
-      mdxOptions: {
-        remarkPlugins: [remarkGfm],
-      },
-    });
+    const mdxContent = await serialize(cleanContent, options);
     return {
-      props: { title: "", body: "", mdxContent },
+      props: { mdxContent },
     };
   }
   const mdxContent = await serialize("# Content not found");
   return {
-    props: { title: "", body: "", mdxContent },
+    props: { mdxContent },
     // Next.js will attempt to re-generate the page:
     // - When a request comes in
     // - At most once every day
@@ -143,11 +160,12 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   };
 }
 
-export default function Issue({ title, mdxContent }: GetStaticPropsResult) {
+export default function Issue({ mdxContent }: GetStaticPropsResult) {
   return (
     <React.Fragment>
       <Head>
-        <title>{title}</title>
+        {/* @ts-ignore */}
+        <title>{mdxContent.frontmatter?.Title ?? "TWIR"}</title>
       </Head>
       <AnimatePresence exitBeforeEnter presenceAffectsLayout>
         <motion.div
@@ -155,10 +173,11 @@ export default function Issue({ title, mdxContent }: GetStaticPropsResult) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          key={title}
+          // @ts-ignore
+          key={mdxContent.frontmatter?.Title ?? "TWIR"}
           transition={{ duration: 0.2, ease: "easeInOut" }}
         >
-          <MDXRemote {...mdxContent} components={{}} />
+          <MDXRemote {...mdxContent} />
         </motion.div>
       </AnimatePresence>
     </React.Fragment>
