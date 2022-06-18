@@ -20,8 +20,8 @@ const IssueCard: React.FC<IssueCardProps> = ({
       <a
         className={cx(
           active
-            ? "bg-amber-500 text-black hover:bg-amber-600"
-            : "bg-stone-200 hover:bg-amber-500/40 hover:text-amber-600 dark:bg-stone-700  dark:text-white dark:hover:text-amber-600",
+            ? "bg-amber-500 text-black"
+            : "bg-stone-200 hover:bg-amber-500/40 hover:text-amber-600 dark:bg-stone-700  dark:text-white dark:hover:text-black/80",
           "m-2 rounded-md p-2",
           "shadow-stone-500 transition duration-200",
           "hover:no-underline hover:shadow-sm"
