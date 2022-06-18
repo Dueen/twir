@@ -2,11 +2,11 @@
 import fs from "fs-extra";
 import { downloadDirList } from "./lib/octokit.js";
 
-// Adding extra filter for this issue: https://github.com/rust-lang/this-week-in-rust/blob/master/content/2016-02-01-this-week-this-rust.md
-// All valid issues end with in-rust.(md|markdown), but this one ☝🏾 does not.
-// filter out 2013-07-06-this-week-in-rust.markdown
-// TODO: look intp this issue and see if it's valid or not.
+// Only include markdown files
 const filterMarkdown = (issue) => /\.(mdx?|markdown)$/.test(issue.name);
+// Filter out non-this-week-in-rust issues
+const filterTWIR = (issue) =>
+  /\d{4}-\d{2}-\d{2}-(this|these|last)-weeks?-(in|this)-rust/.test(issue.name);
 
 // 2013-06-22-this-week-in-rust.markdown -> https://this-week-in-rust.org/blog/2013/06/22/this-week-in-rust-3/
 const baseURL = "https://this-week-in-rust.org/blog/";
@@ -17,7 +17,7 @@ const parseSourceUrl = (name, idx) => {
   return `${baseURL}${year}/${month}/${day}/${path}-${idx}/`;
 };
 
-// 2013-06-22-this-week-in-rust.markdown -> Sat, 22 Jun 2013 00:00:00 GMT
+// 2013-06-22-this-week-in-rust.markdown -> 2013-06-22T22:00:00.000Z
 const parseDate = (name) => {
   const slug = name.replace(/\.(mdx?|markdown)$/, "");
   const [year, month, day] = slug.split("-");
@@ -49,6 +49,9 @@ async function run() {
     .slice(0, 10)
     // Only include markdown files
     .filter(filterMarkdown)
+    // Only include this week in rust issues
+    // TODO: include the rest
+    .filter(filterTWIR)
     // Map to the properties we need
     .map(mapIssues)
     // Sort by date, newest first
@@ -61,4 +64,15 @@ async function run() {
   fs.writeJson(`data/issues.json`, issues);
 }
 
-run();
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+
+/***** NOTE: SPECIAL CASES *****/
+// 2013-07-05-the-state-of-rust.markdown
+// 2013-07-29-last-week-in-rust.markdown
+// 2013-10-06-the-state-of-rust-0-dot-8.markdown
+// 2013-11-09-these-weeks-in-rust.markdown
+// 2014-01-12-the-state-of-rust-0-dot-9.markdown
+// state-of-rust-0-11-0.rst
