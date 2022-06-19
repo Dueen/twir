@@ -4,6 +4,7 @@ import { atomWithStorage } from "jotai/utils";
 import { issues } from "@data/issues";
 
 import type { RESET } from "jotai/utils";
+
 type SortValues = "newest" | "oldest";
 type Issue = typeof issues[number];
 type Issues = Array<Issue>;
@@ -14,20 +15,18 @@ type IssuesProviderState = {
   setSortBy: (update: typeof RESET | React.SetStateAction<SortValues>) => void;
 };
 
-export const IssuesContext = React.createContext<IssuesProviderState | null>(
-  null
-);
+const IssuesContext = React.createContext<IssuesProviderState | null>(null);
 
 // prettier-ignore
 const sortByNewest = (a: Issue, b: Issue) => new Date(b.date).getTime() - new Date(a.date).getTime();
 // prettier-ignore
 const sortByOldest = (a: Issue, b: Issue) => new Date(a.date).getTime() - new Date(b.date).getTime();
 
-export const sortByAtom = atomWithStorage<SortValues>("sortBy", "newest");
+const sortByAtom = atomWithStorage<SortValues>("sortBy", "newest");
 
-export const issuesAtom = atom<Issues>(issues);
+const issuesAtom = atom<Issues>(issues);
 
-export const sortedIssuesAtom = atom((get) => {
+const sortedIssuesAtom = atom((get) => {
   const sortBy = get(sortByAtom);
   const issues = get(issuesAtom);
   const sortedIssues = issues.sort(
