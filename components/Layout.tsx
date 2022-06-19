@@ -5,14 +5,16 @@ import SideNav from "./SideNav";
 import Main from "./Main";
 import Footer from "./Footer";
 
-type Props = React.PropsWithChildren<{}>;
+type LayoutProps = React.PropsWithChildren<{}>;
 
-const Layout: React.FC<Props> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="grid grid-flow-row grid-cols-12">
+    <div className="flex h-screen flex-col">
       <Header />
-      <SideNav />
-      <Main>{children}</Main>
+      <div className="flex min-h-screen flex-1 flex-row overflow-y-hidden">
+        <Main>{children}</Main>
+        <SideNav />
+      </div>
       <Footer />
     </div>
   );

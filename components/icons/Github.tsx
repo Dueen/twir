@@ -3,6 +3,7 @@ import * as React from "react";
 type Props = React.PropsWithChildren<{
   className?: string;
 }>;
+
 const Github: React.FC<Props> = ({ className }) => {
   return (
     <svg

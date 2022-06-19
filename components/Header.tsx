@@ -3,7 +3,7 @@ import GitHubButton from "react-github-btn";
 
 const Header = () => {
   return (
-    <header className="col-span-full border-b border-stone-200 py-8 px-4 dark:border-stone-600 lg:px-10">
+    <header className="border-b border-stone-200 py-8 px-4 dark:border-stone-600 lg:px-10">
       <div className="relative flex items-center justify-between">
         <h2 className="flex flex-col text-lg font-bold text-black dark:text-white md:text-2xl">
           TWIR.IO
