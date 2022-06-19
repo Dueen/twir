@@ -45,8 +45,6 @@ export const addProperties = (issue, idx, array) => {
 async function run() {
   const allIssues = await downloadDirList("content");
   const initialIssues = allIssues
-    // FIXME: this is for dev. make sure we have all the issues for production.
-    .slice(0, 10)
     // Only include markdown files
     .filter(filterMarkdown)
     // Only include this week in rust issues

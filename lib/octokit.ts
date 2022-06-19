@@ -37,6 +37,8 @@ const octokit = new Octokit({
  * @returns A string
  */
 async function downloadFile(path: string): Promise<string> {
+  await avoidRateLimit();
+
   const { data } = await octokit.repos.getContent({
     owner: REPO_OWNER,
     repo: REPO_NAME,
@@ -79,6 +81,17 @@ async function downloadDirList(path: string) {
   }
 
   return data;
+}
+
+// https://github.com/vercel/next.js/discussions/18550
+async function avoidRateLimit() {
+  if (process.env.NODE_ENV === "production") {
+    await sleep();
+  }
+}
+
+function sleep(ms = 500) {
+  return new Promise((res) => setTimeout(res, ms));
 }
 
 export type DirectoryList = Awaited<ReturnType<typeof downloadDirList>>;
