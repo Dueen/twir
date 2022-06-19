@@ -30,7 +30,7 @@ const Footer = () => {
           <div className="flex items-center px-4 lg:justify-end">
             <ul className="inline-flex w-full lg:mb-0 lg:w-auto">
               {links.map(({ href, label }) => (
-                <li className="mr-6 mb-2 md:mb-0">
+                <li key={href} className="mr-6 mb-2 md:mb-0">
                   <a className="flex text-sm" href={href}>
                     {label}
                     <ArrowUp className="ml-2 h-4 w-4 fill-amber-500" />
