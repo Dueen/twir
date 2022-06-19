@@ -1,13 +1,12 @@
 import * as React from "react";
 import Head from "next/head";
-import { MDXRemote } from "next-mdx-remote";
-import { motion, AnimatePresence } from "framer-motion";
-import remarkGfm from "remark-gfm";
-import { serialize } from "next-mdx-remote/serialize";
+import { AnimatePresence, motion } from "framer-motion";
+import { micromark } from "micromark";
+import { gfm, gfmHtml } from "micromark-extension-gfm";
+import { frontmatter, frontmatterHtml } from "micromark-extension-frontmatter";
 
 import { downloadFile } from "@lib/octokit";
 import { issues } from "@data/issues";
-import { parse } from "@lib/mdx";
 
 import type {
   GetStaticPropsContext,
@@ -26,81 +25,7 @@ export async function getStaticPaths() {
   };
 }
 
-// /***** USING THIS TO CATCH THE ERRORS AND DEBUG *****/
-
-// export async function getStaticProps({
-//   params,
-// }: GetStaticPropsContext<Params>) {
-//   if (params && params.id) {
-//     const issue = issues.find(
-//       ({ id }: any) => String(id) === String(params.id)
-//     );
-//     const title = issue.title || "This Week In Rust";
-//     const content = await downloadFile(issue.path);
-
-//     const cleanContent = content
-//       // fixes: Unexpected character `!` (U+0021)
-//       //
-//       .replace(/\<\!.*\>/, "")
-//       // fixes: to create a link in MDX, use `[text](url)`
-//       // maps <https://....> to [text](url)
-//       .replace(linkRegex, replceLinks)
-//       // fixes: Could not parse expression with acorn
-//       // replaces lines inside of blockqoute with:  > ...
-//       .replace(
-//         /\{\% blockquote \%\}(.*)\{\% endblockquote \%\}/gis,
-//         replaceBlockQoute
-//       )
-//       // fixes: Could not parse expression with acorn
-//       // replaces the pull request with: [description](url)
-//       .replace(pullRequestRegex, replacePullRequest);
-
-//     const mdxContent = await serialize(cleanContent, {
-//       mdxOptions: {
-//         remarkPlugins: [remarkGfm],
-//       },
-//     });
-//     return {
-//       props: { title, mdxContent },
-//     };
-//   }
-//   const mdxContent = await serialize("# Content not found");
-//   return {
-//     props: { title: "This Week In Rust", mdxContent },
-//   };
-// }
-
-const linkRegex = /[<|(]([http|mailto:].*)[)|>]/gi;
-// prettier-ignore
-const replceLinks = (match: string, p1: string) => `[${p1.replace("mailto:", "")}](${p1})`;
-
-// prettier-ignore
-const replaceBlockQoute = (match: string, p1: string) => p1.split("\n").map((line: string) => `> ${line}`).join("\n");
-
-// prettier-ignore
-const pullRequestRegex = /\{\% blockquote \@dotdash (.*) \%\}([\s\S]*?)\{\% endblockquote \%\}/gi;
-// prettier-ignore
-const replacePullRequest = (match: string, p1: string, p2: string) =>`[${p2}](${p1})`;
-
-const CONTENT_NOT_FOUND = (issue: any) => `
-# Content not found
-## Visit the original issue [here](${issue.sourceUrl})
-`;
-
-const options = {
-  mdxOptions: {
-    remarkPlugins: [remarkGfm],
-  },
-  parseFrontmatter: true,
-};
-
 const DAY_IN_SECONDS = 24 * 60 * 60;
-
-const convertBlockQoute = (_: string, p: string) =>
-  p
-    .split("\n")
-    .map((line: string) => `> ${line}`)
-    .join("\n");
 
 const insertFrontMatter = (content: string) => {
   const match = /[\n]{2}/.exec(content);
@@ -121,51 +46,65 @@ const insertFrontMatter = (content: string) => {
   }
 };
 
+const removeMoreComment = (content: string) =>
+  content.replace(/\<\!-- more --\>/g, "");
+
+const parse = (content: string) =>
+  micromark(content, {
+    extensions: [gfm(), frontmatter()],
+    htmlExtensions: [gfmHtml(), frontmatterHtml()],
+  });
+
+const extractFrontMatter = (content: string) => ({
+  // TODO: do proper error handling
+  //@ts-ignore
+  title: content.match(/title:\s(.*)/gi)[0].replace(/title:\s/gi, ""),
+  //@ts-ignore
+  date: content.match(/date: (.*)/gi)[0].replace(/date: /gi, ""),
+  //@ts-ignore
+  category: content.match(/category: (.*)/gi)[0].replace(/category: /gi, ""),
+});
+
 export async function getStaticProps({ params }: GetStaticPropsContext) {
   if (params && params.id) {
     const issue = issues.find(({ id }: any) => id === params?.id) || issues[0];
 
     // fetch the issue from github api
     const content = await downloadFile(issue.path);
-    const withFrontmatter = insertFrontMatter(content);
-    const cleanContent = withFrontmatter
-      // fixes: Unexpected character `!` (U+0021)
-      // replaces <!...> with empty string
-      .replace(/\<\!.*\>/, "")
-      // fixes: to create a link in MDX, use `[text](url)`
-      // maps <https://....> to [text](url)
-      .replace(linkRegex, replceLinks)
-      // fixes: Could not parse expression with acorn
-      // replaces lines inside of blockqoute with:  > ...
-      .replace(
-        /\{\% blockquote \%\}(.*)\{\% endblockquote \%\}/gis,
-        replaceBlockQoute
-      )
-      // fixes: Could not parse expression with acorn
-      // replaces the pull request with: [description](url)
-      .replace(pullRequestRegex, replacePullRequest);
 
-    const mdxContent = await serialize(cleanContent, options);
+    const frontmatter = extractFrontMatter(content);
+
+    // insert frontmatter
+    const withFrontmatter = insertFrontMatter(content);
+
+    // remove comment
+    const withoutComment = removeMoreComment(withFrontmatter);
+
+    // micromark the content
+    const parsedContent = parse(withoutComment);
+
     return {
-      props: { mdxContent },
+      props: { parsedContent, frontmatter },
+      // Next.js will attempt to re-generate the page:
+      // - When a request comes in
+      // - At most once every day
+      revalidate: DAY_IN_SECONDS,
     };
   }
-  const mdxContent = await serialize("# Content not found");
+  const frontmatter = { title: "TWIR.IO", date: "", category: "" };
   return {
-    props: { mdxContent },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every day
-    revalidate: DAY_IN_SECONDS,
+    props: { parsedContwnt: parse("# Content not found"), frontmatter },
   };
 }
 
-export default function Issue({ mdxContent }: GetStaticPropsResult) {
+export default function Issue({
+  parsedContent,
+  frontmatter,
+}: GetStaticPropsResult) {
   return (
     <React.Fragment>
       <Head>
-        {/* @ts-ignore */}
-        <title>{mdxContent.frontmatter?.Title ?? "TWIR"}</title>
+        <title>{frontmatter.title}</title>
       </Head>
       <AnimatePresence exitBeforeEnter presenceAffectsLayout>
         <motion.div
@@ -173,19 +112,11 @@ export default function Issue({ mdxContent }: GetStaticPropsResult) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          // @ts-ignore
-          key={mdxContent.frontmatter?.Title ?? "TWIR"}
+          key={frontmatter.title}
           transition={{ duration: 0.2, ease: "easeInOut" }}
-        >
-          <MDXRemote {...mdxContent} />
-        </motion.div>
+          dangerouslySetInnerHTML={{ __html: String(parsedContent) }}
+        ></motion.div>
       </AnimatePresence>
     </React.Fragment>
   );
 }
-
-/**
- * FIXME: FAILING ISSUES
- * 6: Unexpected character `+` (U+002B) in name -> (<corey+blog@octayn.net>)
- * 32: Unexpected character `)` (U+0029) in name -> [boehm-rs][https://github.com/huonw/boehm-rs), a `Gc<T](https://github.com/huonw/boehm-rs), a `Gc<T)` type with a real
- */
