@@ -21,20 +21,20 @@ const IssueCard: React.FC<IssueCardProps> = ({
         className={cx(
           active
             ? "bg-amber-500 text-black"
-            : "bg-stone-200 hover:bg-amber-500/40 hover:text-amber-600 dark:bg-stone-700  dark:text-white dark:hover:text-black/80",
+            : "bg-stone-200 text-stone-900/80 hover:bg-amber-500/40 hover:text-amber-600 dark:bg-stone-700  dark:text-white dark:hover:text-black/80",
           "m-2 rounded-md p-2",
           "shadow-stone-500 transition duration-200",
           "hover:no-underline hover:shadow-sm"
         )}
       >
-        <button className="flex max-w-sm flex-wrap items-center text-left">
+        <div className="flex max-w-sm flex-wrap items-center text-left">
           <div className="w-full">
-            <h3 className="font-heading text-md mb-2 font-medium md:text-lg lg:text-xl ">
+            <h3 className="font-heading md:text-md mb-2 text-base font-medium lg:text-lg">
               {title}
             </h3>
-            <p>{description}</p>
+            <pre className="text-xs">{description}</pre>
           </div>
-        </button>
+        </div>
       </a>
     </Link>
   );

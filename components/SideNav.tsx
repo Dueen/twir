@@ -18,10 +18,10 @@ const SideNav = () => {
   }, [router.query.id]);
 
   return (
-    <nav className="no-scrollbar order-first h-full max-h-screen w-full overflow-y-auto overflow-x-hidden border-r border-stone-200 dark:border-stone-600 sm:w-56">
+    <nav className="no-scrollbar relative order-first h-full max-h-screen w-full overflow-y-auto overflow-x-hidden border-r border-stone-200 dark:border-stone-600 sm:w-56">
       <ClientOnly>
         <Toggle />
-        <ul className="flex h-full flex-col">
+        <ul className="mt-4 flex h-full flex-col">
           {issues.map((issue: any) => (
             <IssueCard
               key={issue.name}
