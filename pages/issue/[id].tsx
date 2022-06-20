@@ -55,15 +55,21 @@ const parse = (content: string) =>
     htmlExtensions: [gfmHtml(), frontmatterHtml()],
   });
 
-const extractFrontMatter = (content: string) => ({
-  // TODO: do proper error handling
-  //@ts-ignore
-  title: content.match(/title:\s(.*)/gi)[0].replace(/title:\s/gi, ""),
-  //@ts-ignore
-  date: content.match(/date: (.*)/gi)[0].replace(/date: /gi, ""),
-  //@ts-ignore
-  category: content.match(/category: (.*)/gi)[0].replace(/category: /gi, ""),
-});
+const extractFrontMatter = (content: string) => {
+  const extract = (re: RegExp, str: string) => {
+    const match = str.match(re);
+    if (match) {
+      return match[0].replace(re, "").trim();
+    }
+    return "";
+  };
+
+  return {
+    title: extract(/title:\s(.*)/gi, content),
+    date: extract(/date:\s(.*)/gi, content),
+    category: extract(/category:\s(.*)/gi, content),
+  };
+};
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
   if (params && params.id) {
@@ -108,7 +114,7 @@ export default function Issue({
       </Head>
       <AnimatePresence exitBeforeEnter presenceAffectsLayout>
         <motion.div
-          className="prose prose-stone max-w-none bg-stone-50 p-10 text-left dark:prose-invert dark:bg-stone-800"
+          className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-amber-500 hover:prose-a:text-amber-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-amber-500/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
