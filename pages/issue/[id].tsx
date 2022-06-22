@@ -5,7 +5,8 @@ import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import { frontmatter, frontmatterHtml } from "micromark-extension-frontmatter";
 
-import { getAllIssues, getIssueById } from "@lib/octokit";
+import { getAllIssues } from "@lib/octokit";
+import Layout from "@components/Layout";
 
 import type {
   GetStaticPropsContext,
@@ -13,17 +14,6 @@ import type {
 } from "next/types";
 
 type GetStaticPropsResult = InferGetStaticPropsType<typeof getStaticProps>;
-
-export async function getStaticPaths() {
-  const issues = await getAllIssues();
-  const paths = issues.map((issue: any) => ({
-    params: { id: issue.id },
-  }));
-  return {
-    paths: paths,
-    fallback: false,
-  };
-}
 
 const DAY_IN_SECONDS = 24 * 60 * 60;
 
@@ -71,16 +61,60 @@ const extractFrontMatter = (content: string) => {
   };
 };
 
+const extractIssueID = (text: string) => {
+  const titleMatch = /title:\s(.*)/gi.exec(text);
+
+  if (titleMatch) {
+    const title = titleMatch[1].toLowerCase();
+
+    const id = title.split(" ").pop() || "0";
+    return id;
+  }
+
+  return "0";
+};
+
+async function avoidRateLimit() {
+  if (process.env.NODE_ENV === "production") {
+    await sleep();
+  }
+}
+
+function sleep(ms = 500) {
+  return new Promise((res) => setTimeout(res, ms));
+}
+
+export async function getStaticPaths() {
+  const issues = await getAllIssues();
+  const paths = issues.map((issue: any) => ({
+    params: { id: issue.id },
+  }));
+  return {
+    paths: paths,
+    fallback: false,
+  };
+}
+
 export async function getStaticProps({ params }: GetStaticPropsContext) {
   if (params && params.id) {
-    const issue = await getIssueById(
-      Array.isArray(params.id) ? params.id[0] : params.id
+    await avoidRateLimit();
+
+    const issues = await getAllIssues();
+
+    const navIssues = issues.map((issue) => ({
+      ...issue,
+      text: "",
+      date: String(issue.date),
+    }));
+
+    const issue = issues.find(
+      (entry) => extractIssueID(entry.text) === params.id
     );
 
-    const frontmatter = extractFrontMatter(issue.text);
+    const frontmatter = extractFrontMatter(issue ? issue.text : "");
 
     // insert frontmatter
-    const withFrontmatter = insertFrontMatter(issue.text);
+    const withFrontmatter = insertFrontMatter(issue ? issue.text : "");
 
     // remove comment
     const withoutComment = removeMoreComment(withFrontmatter);
@@ -89,7 +123,7 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
     const parsedContent = parse(withoutComment);
 
     return {
-      props: { parsedContent, frontmatter },
+      props: { parsedContent, frontmatter, navIssues },
       // Next.js will attempt to re-generate the page:
       // - When a request comes in
       // - At most once every day
@@ -98,30 +132,34 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   }
   const frontmatter = { title: "TWIR.IO", date: "", category: "" };
   return {
-    props: { parsedContwnt: parse("# Content not found"), frontmatter },
+    props: { parsedContent: parse("# Content not found"), frontmatter },
   };
 }
 
 export default function Issue({
   parsedContent,
   frontmatter,
+  navIssues,
 }: GetStaticPropsResult) {
   return (
     <React.Fragment>
       <Head>
         <title>{frontmatter.title}</title>
       </Head>
-      <AnimatePresence exitBeforeEnter>
-        <motion.div
-          className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-amber-500 hover:prose-a:text-amber-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-amber-500/80"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          key={frontmatter.title}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-          dangerouslySetInnerHTML={{ __html: String(parsedContent) }}
-        />
-      </AnimatePresence>
+      {/* @ts-ignore */}
+      <Layout allIssues={navIssues || []}>
+        <AnimatePresence exitBeforeEnter>
+          <motion.div
+            className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-amber-500 hover:prose-a:text-amber-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-amber-500/80"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            key={frontmatter.title}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            dangerouslySetInnerHTML={{ __html: String(parsedContent) }}
+          />
+        </AnimatePresence>
+      </Layout>
     </React.Fragment>
   );
 }

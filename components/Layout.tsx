@@ -5,15 +5,19 @@ import SideNav from "./SideNav";
 import Main from "./Main";
 import Footer from "./Footer";
 
-type LayoutProps = React.PropsWithChildren<{}>;
+import { getAllIssues } from "@lib/octokit";
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+type LayoutProps = React.PropsWithChildren<{
+  allIssues: Awaited<ReturnType<typeof getAllIssues>>;
+}>;
+
+const Layout: React.FC<LayoutProps> = ({ children, allIssues }) => {
   return (
     <div className="flex h-screen flex-col">
       <Header />
       <div className="flex min-h-screen flex-1 flex-row overflow-y-hidden">
         <Main>{children}</Main>
-        <SideNav />
+        <SideNav allIssues={allIssues} />
       </div>
       <Footer />
     </div>

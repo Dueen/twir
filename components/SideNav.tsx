@@ -1,15 +1,35 @@
 import * as React from "react";
 import { useRouter } from "next/router";
 import { format } from "date-fns";
+import { useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 import IssueCard from "./IssueCard";
 import Toggle from "./Toggle";
-import { useIssues } from "@providers/IssuesProvider";
 
-const SideNav = () => {
-  const { issues } = useIssues();
+import type { getAllIssues } from "@lib/octokit";
+
+type Issues = Awaited<ReturnType<typeof getAllIssues>>;
+type Issue = Issues[number];
+type SideNavProps = React.PropsWithChildren<{
+  allIssues: Issues;
+}>;
+export type SortValues = "newest" | "oldest";
+
+const sortByAtom = atomWithStorage<SortValues>("sortBy", "newest");
+
+// prettier-ignore
+const sortByNewest = (a: Issue, b: Issue) => new Date(b.date).getTime() - new Date(a.date).getTime();
+// prettier-ignore
+const sortByOldest = (a: Issue, b: Issue) => new Date(a.date).getTime() - new Date(b.date).getTime();
+
+const SideNav: React.FC<SideNavProps> = ({ allIssues }) => {
   const router = useRouter();
   const [currentIssue, setCurrentIssue] = React.useState("");
+  const [sortBy, setSortBy] = useAtom(sortByAtom);
+  const [issues, SetIssues] = React.useState(() =>
+    allIssues.sort(sortBy === "newest" ? sortByNewest : sortByOldest)
+  );
 
   React.useEffect(() => {
     if (router.query.id) {
@@ -17,10 +37,16 @@ const SideNav = () => {
     }
   }, [router.query.id]);
 
+  React.useEffect(() => {
+    SetIssues((issues) =>
+      issues.sort(sortBy === "newest" ? sortByNewest : sortByOldest)
+    );
+  }, [sortBy]);
+
   return (
     <nav className="no-scrollbar relative order-first h-full max-h-screen w-full overflow-y-auto overflow-x-hidden border-r border-stone-200 dark:border-stone-600 sm:w-56">
       <ClientOnly>
-        <Toggle />
+        <Toggle setSortBy={setSortBy} sortBy={sortBy!} />
         <ul className="mt-4 flex h-full flex-col">
           {issues.map((issue: any) => (
             <IssueCard

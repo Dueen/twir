@@ -116,7 +116,7 @@ const mapEntries = (entry: Entry) => {
     date,
     id,
     name: entry.name,
-    path: entry.path,
+    path: entry.path ?? null,
     sourceUrl,
     text,
     title,
