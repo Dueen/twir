@@ -11,6 +11,8 @@ import Layout from "@components/Layout";
 import type {
   GetStaticPropsContext,
   InferGetStaticPropsType,
+  GetStaticPaths,
+  GetStaticProps,
 } from "next/types";
 
 type GetStaticPropsResult = InferGetStaticPropsType<typeof getStaticProps>;
@@ -84,18 +86,20 @@ function sleep(ms = 500) {
   return new Promise((res) => setTimeout(res, ms));
 }
 
-export async function getStaticPaths() {
+export const getStaticPaths: GetStaticPaths = async () => {
   const issues = await getAllIssues();
   const paths = issues.map((issue: any) => ({
     params: { id: issue.id },
   }));
   return {
     paths: paths,
-    fallback: false,
+    fallback: "blocking",
   };
-}
+};
 
-export async function getStaticProps({ params }: GetStaticPropsContext) {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+}: GetStaticPropsContext) => {
   if (params && params.id) {
     await avoidRateLimit();
 
@@ -134,7 +138,7 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   return {
     props: { parsedContent: parse("# Content not found"), frontmatter },
   };
-}
+};
 
 export default function Issue({
   parsedContent,
