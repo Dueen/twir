@@ -23,10 +23,10 @@ const octokit = new Octokit({
 
       return true;
     },
-    onAbuseLimit: (retryAfter: number, options: ThrottleOptions) => {
+    onSecondaryRateLimit: (retryAfter: number, options: ThrottleOptions) => {
       // does not retry, only logs a warning
       octokit.log.warn(
-        `Abuse detected for request ${options.method} ${options.url}`
+        `secondary rate limit detected for request ${options.method} ${options.url}`
       );
     },
   },
@@ -124,6 +124,7 @@ const mapEntries = (entry: Entry) => {
 };
 
 export async function getAllIssues() {
+  await avoidRateLimit();
   type QueryAllResult = {
     repository: Repository & {
       object: Tree & { entries: Tree["entries"] & { object: Blob } };
@@ -180,13 +181,18 @@ export async function getIssueById(searchID: string) {
   return issues[0];
 }
 
+let lastFetch = new Date();
 // https://github.com/vercel/next.js/discussions/18550
 async function avoidRateLimit() {
-  if (process.env.NODE_ENV === "production") {
-    await sleep();
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    let sinceLastFetch = new Date().getTime() - lastFetch.getTime();
+    if (sinceLastFetch < 5000) {
+      await sleep();
+    }
+    lastFetch = new Date();
   }
 }
 
-function sleep(ms = 500) {
+function sleep(ms = 5000) {
   return new Promise((res) => setTimeout(res, ms));
 }
