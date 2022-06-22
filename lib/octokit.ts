@@ -170,11 +170,10 @@ export async function getAllIssues() {
 }
 
 export async function getIssueById(searchID: string) {
-  const issues = await getAllIssues();
   await avoidRateLimit();
+  const issues = await getAllIssues();
 
   const issue = issues.find((entry) => extractIssueID(entry.text) === searchID);
-  console.log(issue);
   if (issue) {
     return issue;
   }
@@ -191,12 +190,3 @@ async function avoidRateLimit() {
 function sleep(ms = 500) {
   return new Promise((res) => setTimeout(res, ms));
 }
-
-export type DirectoryList = Awaited<ReturnType<typeof downloadDirList>>;
-
-async function downloadDirList() {
-  return await getAllIssues();
-}
-
-const downloadFile = () => "";
-export { downloadFile, downloadDirList };

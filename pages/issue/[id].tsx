@@ -111,7 +111,7 @@ export default function Issue({
       <Head>
         <title>{frontmatter.title}</title>
       </Head>
-      <AnimatePresence exitBeforeEnter presenceAffectsLayout>
+      <AnimatePresence exitBeforeEnter>
         <motion.div
           className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-amber-500 hover:prose-a:text-amber-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-amber-500/80"
           initial={{ opacity: 0 }}
@@ -120,7 +120,7 @@ export default function Issue({
           key={frontmatter.title}
           transition={{ duration: 0.2, ease: "easeInOut" }}
           dangerouslySetInnerHTML={{ __html: String(parsedContent) }}
-        ></motion.div>
+        />
       </AnimatePresence>
     </React.Fragment>
   );
