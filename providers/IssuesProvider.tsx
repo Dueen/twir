@@ -1,13 +1,13 @@
 import * as React from "react";
 import { useAtom, atom, useAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { issues } from "@data/issues";
+import { getAllIssues } from "@lib/octokit";
 
 import type { RESET } from "jotai/utils";
 
 type SortValues = "newest" | "oldest";
-type Issue = typeof issues[number];
-type Issues = Array<Issue>;
+type Issue = Issues[number];
+type Issues = Awaited<ReturnType<typeof getAllIssues>>;
 type IssuesProviderProps = React.PropsWithChildren<{}>;
 type IssuesProviderState = {
   issues: Issues;
@@ -24,7 +24,12 @@ const sortByOldest = (a: Issue, b: Issue) => new Date(a.date).getTime() - new Da
 
 const sortByAtom = atomWithStorage<SortValues>("sortBy", "newest");
 
-const issuesAtom = atom<Issues>(issues);
+// prettier-ignore
+const URL = process.env.NODE_ENV == "development" ? "http://localhost:3000" : String(process.env.NEXT_PUBLIC_VERCEL_URL);
+const issuesAtom = atom<any>(async () => {
+  const issues = await fetch(`${URL}/api/issues`).then((res) => res.json());
+  return issues;
+});
 
 const sortedIssuesAtom = atom((get) => {
   const sortBy = get(sortByAtom);

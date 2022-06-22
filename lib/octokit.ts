@@ -1,19 +1,20 @@
-import { Octokit as createOctokit } from "@octokit/rest";
+import { Octokit as createOctokit } from "@octokit/core";
 import { throttling } from "@octokit/plugin-throttling";
 
-const Octokit = createOctokit.plugin(throttling);
+import type { Blob, Tree, Repository } from "@octokit/graphql-schema";
 
-const REPO_OWNER = "rust-lang";
-const REPO_NAME = "this-week-in-rust";
-
+type MappedEntries = ReturnType<typeof mapEntries>;
+type Entry = NonNullable<Tree["entries"]>[number];
 type ThrottleOptions = {
   method: string;
   url: string;
   request: { retryCount: number };
 };
 
+const Octokit = createOctokit.plugin(throttling);
+
 const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
+  auth: `bearer ${process.env.GITHUB_GRAPHQL_TOKEN}`,
   throttle: {
     onRateLimit: (retryAfter: number, options: ThrottleOptions) => {
       console.warn(
@@ -31,56 +32,153 @@ const octokit = new Octokit({
   },
 });
 
-/**
- * It downloads a file from a GitHub repository
- * @param {string} path - The path to the file you want to download.
- * @returns A string
- */
-async function downloadFile(path: string): Promise<string> {
-  await avoidRateLimit();
+const REPO_OWNER = "rust-lang";
+const REPO_NAME = "this-week-in-rust";
 
-  const { data } = await octokit.repos.getContent({
-    owner: REPO_OWNER,
-    repo: REPO_NAME,
-    path,
-  });
+// Only include markdown files
+const filterMarkdown = (entry: Entry) => /\.(mdx?|markdown)$/.test(entry.name);
 
-  if ("content" && "encoding" in data) {
-    const encoding = data.encoding as Parameters<typeof Buffer.from>["1"];
-    return Buffer.from(data.content, encoding).toString();
+// Filter out non-this-week-in-rust issues
+const filterTWIR = (entry: Entry) =>
+  /\d{4}-\d{2}-\d{2}-(this|these|last)-weeks?-(in|this)-rust/.test(entry.name);
+
+// 2013-06-22-this-week-in-rust.markdown -> 2013-06-22T22:00:00.000Z
+const parseDate = (name: string) => {
+  const slug = name.replace(/\.(mdx?|markdown)$/, "");
+  const [year, month, day] = slug.split("-").map(Number);
+  const date = new Date();
+  date.setUTCFullYear(year);
+  date.setUTCMonth(month - 1);
+  date.setUTCDate(day);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+// 2013-06-22-this-week-in-rust.markdown -> https://this-week-in-rust.org/blog/2013/06/22/this-week-in-rust-3/
+const baseURL = "https://this-week-in-rust.org/blog";
+const parseSourceUrl = (
+  title: string,
+  year: number,
+  month: number,
+  day: number
+) => {
+  let slug = title.trim().replace(" ", "_").toLowerCase();
+  // prettier-ignore
+  const [yearString, monthString, dayString] = [year, month, day].map((n) => String(n).padStart(2, "0"));
+
+  // NOTE: SPECIAL CASES
+  if (
+    slug === "the-state-of-rust-0.7" ||
+    slug === "the-state-of-rust-0.8" ||
+    slug === "the-state-of-rust-0.9"
+  ) {
+    slug = slug.replace(".", "");
   }
 
-  console.error(data);
-  throw new Error(
-    `Tried to get ${path} but got back something that was unexpected. It doesn't have a content or encoding property`
+  //NOTE: https://this-week-in-rust.org/blog/2014/07/15/state-of-rust-0.11.0/ IS NOT INCLUDED IN THE FINAL LIST
+
+  return `${baseURL}/${yearString}/${monthString}/${dayString}/${slug}`;
+};
+
+const extractTitle = (string: string) => /title:\s(.*)/gi.exec(string)![1];
+
+const extractIssueID = (text: string) => {
+  const titleMatch = /title:\s(.*)/gi.exec(text);
+
+  if (titleMatch) {
+    const title = titleMatch[1].toLowerCase();
+
+    const id = title.split(" ").pop() || "0";
+    return id;
+  }
+
+  return "0";
+};
+
+const sortEntriesDesc = (a: MappedEntries, b: MappedEntries) =>
+  b.date.getTime() - a.date.getTime();
+
+const mapEntries = (entry: Entry) => {
+  // FIXME: fix these types
+  const text = (entry.object as any).text as string;
+  const title = extractTitle(text ?? "");
+  const id = extractIssueID(text ?? "");
+  // TODO: extract category from text
+  //   const catyegory = extractCategory((entry.object as any).text as Blob["text"] as string);
+  const date = parseDate(entry.name);
+  const sourceUrl = parseSourceUrl(
+    title,
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate()
   );
+  return {
+    date,
+    id,
+    name: entry.name,
+    path: entry.path,
+    sourceUrl,
+    text,
+    title,
+  };
+};
+
+export async function getAllIssues() {
+  type QueryAllResult = {
+    repository: Repository & {
+      object: Tree & { entries: Tree["entries"] & { object: Blob } };
+    };
+  };
+  const { repository } = await octokit.graphql<QueryAllResult>({
+    query: `query repoFiles($owner: String!, $name: String!) {
+                repository(owner: $owner, name: $name) {
+                  object(expression: "HEAD:content") {
+                    ... on Tree {
+                      entries {
+                        name
+                        object {
+                          ... on Blob {
+                            text
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }`,
+    owner: REPO_OWNER,
+    name: REPO_NAME,
+  });
+
+  if (repository && repository.object && repository.object.entries) {
+    // Filter out non-markdown files
+    const onlyMarkdown = repository.object.entries.filter(filterMarkdown);
+
+    // Filter out non-this-week-in-rust issues
+    const onlyTWIR = onlyMarkdown.filter(filterTWIR);
+
+    // Map the entries to a more useful format
+    const mappedEntries = onlyTWIR.map(mapEntries);
+
+    // Sort the entries by date descending order
+    const sortedEntries = mappedEntries.sort(sortEntriesDesc);
+
+    return sortedEntries;
+  }
+
+  throw new Error("could not get issues");
 }
 
-/**
- *
- * @param path the full path to list
- * @returns a promise that resolves to a file ListItem of the files/directories in the given directory (not recursive)
- */
-async function downloadDirList(path: string) {
-  const { data, status } = await octokit.repos.getContent({
-    owner: REPO_OWNER,
-    repo: REPO_NAME,
-    path,
-  });
+export async function getIssueById(searchID: string) {
+  const issues = await getAllIssues();
+  await avoidRateLimit();
 
-  if (status !== 200) {
-    throw new Error(
-      `Tried to download content from ${path}. GitHub returned a status code of ${status}`
-    );
+  const issue = issues.find((entry) => extractIssueID(entry.text) === searchID);
+  console.log(issue);
+  if (issue) {
+    return issue;
   }
-
-  if (!Array.isArray(data)) {
-    throw new Error(
-      `Tried to download content from ${path}. GitHub did not return an array of files. This should never happen...`
-    );
-  }
-
-  return data;
+  return issues[0];
 }
 
 // https://github.com/vercel/next.js/discussions/18550
@@ -96,4 +194,9 @@ function sleep(ms = 500) {
 
 export type DirectoryList = Awaited<ReturnType<typeof downloadDirList>>;
 
+async function downloadDirList() {
+  return await getAllIssues();
+}
+
+const downloadFile = () => "";
 export { downloadFile, downloadDirList };

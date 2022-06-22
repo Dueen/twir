@@ -5,8 +5,7 @@ import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import { frontmatter, frontmatterHtml } from "micromark-extension-frontmatter";
 
-import { downloadFile } from "@lib/octokit";
-import { issues } from "@data/issues";
+import { getAllIssues, getIssueById } from "@lib/octokit";
 
 import type {
   GetStaticPropsContext,
@@ -16,6 +15,7 @@ import type {
 type GetStaticPropsResult = InferGetStaticPropsType<typeof getStaticProps>;
 
 export async function getStaticPaths() {
+  const issues = await getAllIssues();
   const paths = issues.map((issue: any) => ({
     params: { id: issue.id },
   }));
@@ -73,15 +73,14 @@ const extractFrontMatter = (content: string) => {
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
   if (params && params.id) {
-    const issue = issues.find(({ id }: any) => id === params?.id) || issues[0];
+    const issue = await getIssueById(
+      Array.isArray(params.id) ? params.id[0] : params.id
+    );
 
-    // fetch the issue from github api
-    const content = await downloadFile(issue.path);
-
-    const frontmatter = extractFrontMatter(content);
+    const frontmatter = extractFrontMatter(issue.text);
 
     // insert frontmatter
-    const withFrontmatter = insertFrontMatter(content);
+    const withFrontmatter = insertFrontMatter(issue.text);
 
     // remove comment
     const withoutComment = removeMoreComment(withFrontmatter);
