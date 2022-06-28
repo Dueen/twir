@@ -6,7 +6,6 @@ import { gfm, gfmHtml } from "micromark-extension-gfm";
 import { frontmatter, frontmatterHtml } from "micromark-extension-frontmatter";
 
 import { getAllIssues } from "@lib/octokit";
-import Layout from "@components/Layout";
 
 import type {
   GetStaticPropsContext,
@@ -47,22 +46,6 @@ const parse = (content: string) =>
     htmlExtensions: [gfmHtml(), frontmatterHtml()],
   });
 
-const extractFrontMatter = (content: string) => {
-  const extract = (re: RegExp, str: string) => {
-    const match = str.match(re);
-    if (match) {
-      return match[0].replace(re, "").trim();
-    }
-    return "";
-  };
-
-  return {
-    title: extract(/title:\s(.*)/gi, content),
-    date: extract(/date:\s(.*)/gi, content),
-    category: extract(/category:\s(.*)/gi, content),
-  };
-};
-
 const extractIssueID = (text: string) => {
   const titleMatch = /title:\s(.*)/gi.exec(text);
 
@@ -75,6 +58,8 @@ const extractIssueID = (text: string) => {
 
   return "0";
 };
+
+const extractTitle = (string: string) => /title:\s(.*)/gi.exec(string)![1];
 
 async function avoidRateLimit() {
   if (process.env.NODE_ENV === "production") {
@@ -115,10 +100,10 @@ export const getStaticProps: GetStaticProps = async ({
       (entry) => extractIssueID(entry.text) === params.id
     );
 
-    const frontmatter = extractFrontMatter(issue ? issue.text : "");
-
     // insert frontmatter
     const withFrontmatter = insertFrontMatter(issue ? issue.text : "");
+
+    const title = extractTitle(issue!.text);
 
     // remove comment
     const withoutComment = removeMoreComment(withFrontmatter);
@@ -127,43 +112,39 @@ export const getStaticProps: GetStaticProps = async ({
     const parsedContent = parse(withoutComment);
 
     return {
-      props: { parsedContent, frontmatter, navIssues },
+      props: { parsedContent, title, navIssues },
       // Next.js will attempt to re-generate the page:
       // - When a request comes in
       // - At most once every day
       revalidate: DAY_IN_SECONDS,
     };
   }
-  const frontmatter = { title: "TWIR.IO", date: "", category: "" };
   return {
-    props: { parsedContent: parse("# Content not found"), frontmatter },
+    props: { parsedContent: parse("# Content not found"), title: "TWIR" },
   };
 };
 
 export default function Issue({
   parsedContent,
-  frontmatter,
+  title,
   navIssues,
 }: GetStaticPropsResult) {
   return (
     <React.Fragment>
       <Head>
-        <title>{frontmatter.title}</title>
+        <title>{`TWIR | ${title}`}</title>
       </Head>
-      {/* @ts-ignore */}
-      <Layout allIssues={navIssues || []}>
-        <AnimatePresence exitBeforeEnter>
-          <motion.div
-            className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-amber-500 hover:prose-a:text-amber-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-amber-500/80"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            key={frontmatter.title}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            dangerouslySetInnerHTML={{ __html: String(parsedContent) }}
-          />
-        </AnimatePresence>
-      </Layout>
+      <AnimatePresence exitBeforeEnter>
+        <motion.div
+          className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-orange-500 hover:prose-a:text-orange-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-orange-500/80"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          key={title}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+          dangerouslySetInnerHTML={{ __html: String(parsedContent) }}
+        />
+      </AnimatePresence>
     </React.Fragment>
   );
 }

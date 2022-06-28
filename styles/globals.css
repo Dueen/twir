@@ -4,7 +4,7 @@
 
 @layer base {
   a {
-    @apply text-amber-500 underline-offset-1 visited:text-amber-600 hover:underline;
+    @apply text-orange-500 underline-offset-1 visited:text-orange-600 hover:underline;
   }
 }
 
