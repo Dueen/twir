@@ -24,7 +24,7 @@ const links = [
 export function IndexLayout({ children }: any) {
   const [logo, setLogo] = React.useState(logoWhite);
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const mql = window.matchMedia("(prefers-color-scheme: dark)");
 
     setLogo(mql.matches ? logoBlack : logoWhite);
