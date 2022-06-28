@@ -4,8 +4,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import { frontmatter, frontmatterHtml } from "micromark-extension-frontmatter";
+import parseHTML from "html-react-parser";
 
+import IssueLayout from "@components/IssueLayout";
 import { getAllIssues } from "@lib/octokit";
+import { LAST_ISSUE_ID } from "@lib/constants";
 
 import type {
   GetStaticPropsContext,
@@ -37,8 +40,8 @@ const insertFrontMatter = (content: string) => {
   }
 };
 
-const removeMoreComment = (content: string) =>
-  content.replace(/\<\!-- more --\>/g, "");
+const removeComments = (content: string) =>
+  content.replace(/\<\!--(.*?)--\>/gis, "");
 
 const parse = (content: string) =>
   micromark(content, {
@@ -61,16 +64,6 @@ const extractIssueID = (text: string) => {
 
 const extractTitle = (string: string) => /title:\s(.*)/gi.exec(string)![1];
 
-async function avoidRateLimit() {
-  if (process.env.NODE_ENV === "production") {
-    await sleep();
-  }
-}
-
-function sleep(ms = 500) {
-  return new Promise((res) => setTimeout(res, ms));
-}
-
 export const getStaticPaths: GetStaticPaths = async () => {
   const issues = await getAllIssues();
   const paths = issues.map((issue: any) => ({
@@ -86,65 +79,63 @@ export const getStaticProps: GetStaticProps = async ({
   params,
 }: GetStaticPropsContext) => {
   if (params && params.id) {
-    await avoidRateLimit();
-
     const issues = await getAllIssues();
-
-    const navIssues = issues.map((issue) => ({
-      ...issue,
-      text: "",
-      date: String(issue.date),
-    }));
 
     const issue = issues.find(
       (entry) => extractIssueID(entry.text) === params.id
     );
 
+    const meta = {
+      title: extractTitle(issue!.text),
+      isFirst: issue!.id === "1",
+      isLast: issue!.id === LAST_ISSUE_ID,
+    };
+
     // insert frontmatter
     const withFrontmatter = insertFrontMatter(issue ? issue.text : "");
 
-    const title = extractTitle(issue!.text);
-
     // remove comment
-    const withoutComment = removeMoreComment(withFrontmatter);
+    const withoutComment = removeComments(withFrontmatter);
 
     // micromark the content
-    const parsedContent = parse(withoutComment);
+    const content = parse(withoutComment);
 
     return {
-      props: { parsedContent, title, navIssues },
+      props: { content, meta },
       // Next.js will attempt to re-generate the page:
       // - When a request comes in
       // - At most once every day
       revalidate: DAY_IN_SECONDS,
     };
   }
+  const meta = {
+    title: "TWIR",
+  };
   return {
-    props: { parsedContent: parse("# Content not found"), title: "TWIR" },
+    props: { content: parse("# Content not found"), meta },
   };
 };
 
-export default function Issue({
-  parsedContent,
-  title,
-  navIssues,
-}: GetStaticPropsResult) {
+export default function Issue({ content, meta }: GetStaticPropsResult) {
   return (
     <React.Fragment>
       <Head>
-        <title>{`TWIR | ${title}`}</title>
+        <title>{`TWIR | ${meta.title}`}</title>
       </Head>
-      <AnimatePresence exitBeforeEnter>
-        <motion.div
-          className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-orange-500 hover:prose-a:text-orange-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-orange-500/80"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          key={title}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-          dangerouslySetInnerHTML={{ __html: String(parsedContent) }}
-        />
-      </AnimatePresence>
+      <IssueLayout isFirst={meta.isFirst} isLast={meta.isLast}>
+        <AnimatePresence exitBeforeEnter>
+          <motion.div
+            className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-orange-500 hover:prose-a:text-orange-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-orange-500/80"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            key={meta.title}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+          >
+            {parseHTML(content)}
+          </motion.div>
+        </AnimatePresence>
+      </IssueLayout>
     </React.Fragment>
   );
 }
