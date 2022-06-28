@@ -3,7 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import ArrowUp from "@components/icons/ArrowUp";
-import logoImage from "../images/twir-logo.png";
+import logoWhite from "../images/twir-logo-white.png";
+import logoBlack from "../images/twir-logo-black.png";
 
 const links = [
   {
@@ -21,21 +22,36 @@ const links = [
 ];
 
 export function IndexLayout({ children }: any) {
+  const [logo, setLogo] = React.useState(logoWhite);
+
+  React.useLayoutEffect(() => {
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+
+    setLogo(mql.matches ? logoBlack : logoWhite);
+
+    const onChange = (e: MediaQueryListEvent) => {
+      setLogo(e.matches ? logoBlack : logoWhite);
+    };
+
+    mql.onchange = onChange;
+  }, []);
+
   return (
     <>
       <div className="text-stone-700 dark:text-stone-50 lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-112 lg:items-start lg:overflow-y-auto xl:w-120">
         <div className="relative z-10 mx-auto px-4 pb-4 pt-10 sm:px-6 md:max-w-2xl md:px-4 lg:min-h-full lg:flex-auto lg:border-r lg:border-stone-200 lg:py-12 lg:px-8 dark:lg:border-stone-600 xl:px-12">
           <Link href="/">
             <a
-              className="relative mx-auto block w-48 overflow-hidden rounded-lg shadow-xl shadow-stone-200 dark:shadow-stone-800 sm:w-48 sm:rounded-xl lg:w-60 lg:rounded-2xl"
+              className="relative mx-auto block w-48 overflow-hidden shadow-xl shadow-stone-200 dark:shadow-stone-800 sm:w-48 lg:mx-0 lg:w-60"
               aria-label="Homepage"
             >
               <Image
-                src={logoImage}
-                alt=""
+                src={logo}
+                alt="logo"
                 layout="responsive"
                 sizes="(min-width: 1024px) 18rem, (min-width: 640px) 14rem, 10rem"
-                priority
+                loading="lazy"
+                placeholder="blur"
               />
               <div className="absolute inset-0 rounded-lg ring-1 ring-inset ring-black/10 sm:rounded-xl lg:rounded-2xl" />
             </a>
