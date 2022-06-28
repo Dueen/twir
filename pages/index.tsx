@@ -70,6 +70,7 @@ function IssueEntry({ issue }: any) {
 
 export async function getStaticProps() {
   const allIssues = await getAllIssues();
+
   const issues = allIssues.map((issue) => ({
     date: issue.date.toISOString(),
     id: issue.id,
