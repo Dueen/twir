@@ -5,7 +5,7 @@ import SideNav from "./SideNav";
 import Main from "./Main";
 import Footer from "./Footer";
 
-import { getAllIssues } from "@lib/octokit";
+import { getAllIssues } from "@/lib/octokit";
 
 type LayoutProps = React.PropsWithChildren<{
   allIssues: Awaited<ReturnType<typeof getAllIssues>>;

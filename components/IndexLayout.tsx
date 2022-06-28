@@ -2,9 +2,9 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import ArrowUp from "@components/icons/ArrowUp";
-import logoWhite from "../images/twir-logo-white.png";
-import logoBlack from "../images/twir-logo-black.png";
+import ArrowUp from "@/components/icons/ArrowUp";
+import logoWhite from "@/images/twir-logo-white.png";
+import logoBlack from "@/images/twir-logo-black.png";
 
 const links = [
   {

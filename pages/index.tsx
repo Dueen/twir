@@ -2,8 +2,8 @@ import * as React from "react";
 import Head from "next/head";
 import Link from "next/link";
 
-import { getAllIssues } from "@lib/octokit";
-import { Container } from "@components/Container";
+import { getAllIssues } from "@/lib/octokit";
+import { Container } from "@/components/Container";
 
 export default function Home({ issues }: any) {
   return (

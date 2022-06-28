@@ -1,5 +1,5 @@
-import "../styles/globals.css";
-import { IndexLayout } from "@components/IndexLayout";
+import "@/styles/globals.css";
+import { IndexLayout } from "@/components/IndexLayout";
 
 import type { AppProps } from "next/app";
 

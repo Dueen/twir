@@ -7,7 +7,7 @@ import { atomWithStorage } from "jotai/utils";
 import IssueCard from "./IssueCard";
 import Toggle from "./Toggle";
 
-import type { getAllIssues } from "@lib/octokit";
+import type { getAllIssues } from "@/lib/octokit";
 
 type Issues = Awaited<ReturnType<typeof getAllIssues>>;
 type Issue = Issues[number];

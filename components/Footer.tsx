@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import ArrowUp from "@components/icons/ArrowUp";
+import ArrowUp from "@/components/icons/ArrowUp";
 
 const links = [
   {

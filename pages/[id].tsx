@@ -6,9 +6,9 @@ import { gfm, gfmHtml } from "micromark-extension-gfm";
 import { frontmatter, frontmatterHtml } from "micromark-extension-frontmatter";
 import parseHTML from "html-react-parser";
 
-import IssueLayout from "@components/IssueLayout";
-import { getAllIssues } from "@lib/octokit";
-import { LAST_ISSUE_ID } from "@lib/constants";
+import IssueLayout from "@/components/IssueLayout";
+import { getAllIssues } from "@/lib/octokit";
+import { LAST_ISSUE_ID } from "@/lib/constants";
 
 import type {
   GetStaticPropsContext,

@@ -3,8 +3,8 @@ import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import ChevronLeft from "@components/icons/ChevronLeft";
-import ChevronRight from "@components/icons/ChevronRight";
+import ChevronLeft from "@/components/icons/ChevronLeft";
+import ChevronRight from "@/components/icons/ChevronRight";
 
 type IssueLayoutProps = React.PropsWithChildren<{
   isFirst: boolean;
