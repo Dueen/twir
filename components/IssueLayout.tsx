@@ -29,24 +29,28 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({
         >
           {Boolean(isFirst) === false ? (
             <Link href={`/${Number(router.query.id) - 1}`}>
-              <a className="group no-underline transition-colors duration-200 hover:no-underline">
+              <a className="group justify-self-start no-underline transition-colors duration-200 hover:no-underline">
                 <ToolbarPrimitive.Button className={buttonClasses}>
                   <ChevronLeft className="order-first h-4 w-4 fill-stone-500 group-hover:fill-orange-600 dark:fill-stone-900 md:h-6 md:w-6" />
                   <span>Previous Issue</span>
                 </ToolbarPrimitive.Button>
               </a>
             </Link>
-          ) : null}
+          ) : (
+            <div />
+          )}
           {Boolean(isLast) === false ? (
             <Link href={`/${Number(router.query.id) + 1}`}>
-              <a className="group no-underline transition-colors duration-200 hover:no-underline">
+              <a className="group justify-self-end no-underline transition-colors duration-200 hover:no-underline">
                 <ToolbarPrimitive.Button className={buttonClasses}>
                   <span>Next Issue</span>
                   <ChevronRight className="order-last h-4 w-4 fill-stone-500 group-hover:fill-orange-600 dark:fill-stone-900 md:h-6 md:w-6" />
                 </ToolbarPrimitive.Button>
               </a>
             </Link>
-          ) : null}
+          ) : (
+            <div />
+          )}
         </ToolbarPrimitive.Root>
       </div>
       {children}
