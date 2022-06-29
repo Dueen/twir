@@ -183,7 +183,7 @@ export async function getIssueById(searchID: string) {
 
 let lastFetch = new Date();
 // https://github.com/vercel/next.js/discussions/18550
-async function avoidRateLimit() {
+export async function avoidRateLimit() {
   if (process.env.NEXT_PHASE === "phase-production-build") {
     let sinceLastFetch = new Date().getTime() - lastFetch.getTime();
     if (sinceLastFetch < 5000) {

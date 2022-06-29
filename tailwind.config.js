@@ -1,4 +1,4 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
+const defaultTheme = require("tailwindcss/defaultTheme");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "media",
@@ -44,5 +44,9 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/typography"), require("tailwindcss-radix")()],
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("tailwindcss-radix")(),
+    require("@tailwindcss/line-clamp"),
+  ],
 };

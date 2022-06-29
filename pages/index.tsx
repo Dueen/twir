@@ -5,14 +5,16 @@ import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import cx from "classnames";
 import { useSetAtom, atom, useAtom, useAtomValue } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { isSameYear } from "date-fns";
 
 import { getAllIssues } from "@/lib/octokit";
 import { Container } from "@/components/Container";
 import { IndexLayout } from "@/components/IndexLayout";
-
 import ChevronUp from "@/components/icons/ChevronUp";
 import ChevronDown from "@/components/icons/ChevronDown";
+import { YearPicker, yearsAtom } from "@/components/YearPicker";
 
+import type { Years } from "@/components/YearPicker";
 type SortValues = "newest" | "oldest";
 type Issues = Awaited<ReturnType<typeof getAllIssues>>;
 type Issue = Pick<Issues[number], "date" | "id" | "title">;
@@ -22,13 +24,25 @@ const sortByNewest = (a: Issue, b: Issue) => new Date(b.date).getTime() - new Da
 // prettier-ignore
 const sortByOldest = (a: Issue, b: Issue) => new Date(a.date).getTime() - new Date(b.date).getTime();
 
+const filterYears = (issue: Issue, years: Years) =>
+  years.some((year) =>
+    isSameYear(new Date(Number(year), 0, 1), new Date(issue.date))
+  );
+
 const sortByAtom = atomWithStorage<SortValues>("sortBy", "newest");
 const allIssuesAtom = atom<Issues>([]);
 const issuesAtom = atom<Array<any>>((get) => {
   const issues = get(allIssuesAtom);
-  return issues.sort(
-    get(sortByAtom) === "newest" ? sortByNewest : sortByOldest
+  const sortedIssues =
+    get(sortByAtom) === "newest"
+      ? issues.sort(sortByNewest)
+      : issues.sort(sortByOldest);
+
+  const years = get(yearsAtom);
+  const filteredIssues = sortedIssues.filter((issues) =>
+    filterYears(issues, years)
   );
+  return filteredIssues;
 });
 
 export default function Home({ allIssues }: { allIssues: Array<any> }) {
@@ -50,7 +64,7 @@ export default function Home({ allIssues }: { allIssues: Array<any> }) {
         />
       </Head>
       <IndexLayout>
-        <div className="pt-16 pb-12 sm:pb-4 lg:pt-8">
+        <div className="pt-8 pb-12 sm:pb-4">
           <Container>
             <ToolBar />
           </Container>
@@ -142,6 +156,9 @@ const ToolBar = () => {
         </ToolbarPrimitive.ToggleItem>
       </ToolbarPrimitive.ToggleGroup>
       <ToolbarPrimitive.ToolbarSeparator className="mx-2 w-px bg-stone-300 dark:bg-stone-900" />
+      <div className="flex justify-center px-2">
+        <YearPicker />
+      </div>
     </ToolbarPrimitive.Toolbar>
   );
 };

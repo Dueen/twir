@@ -7,7 +7,7 @@ import { frontmatter, frontmatterHtml } from "micromark-extension-frontmatter";
 import parseHTML from "html-react-parser";
 
 import IssueLayout from "@/components/IssueLayout";
-import { getAllIssues } from "@/lib/octokit";
+import { getAllIssues, avoidRateLimit } from "@/lib/octokit";
 import { LAST_ISSUE_ID } from "@/lib/constants";
 
 import type {
@@ -78,6 +78,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({
   params,
 }: GetStaticPropsContext) => {
+  await avoidRateLimit();
   if (params && params.id) {
     const issues = await getAllIssues();
 
