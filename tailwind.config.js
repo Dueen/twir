@@ -1,3 +1,4 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "media",
@@ -32,6 +33,9 @@ module.exports = {
           800: "#945100",
           900: "#5C3300",
         },
+      },
+      fontFamily: {
+        alfa: ["Alfa Slab One", "cursive"],
       },
       spacing: {
         18: "4.5rem",
