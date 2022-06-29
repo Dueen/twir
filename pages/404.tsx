@@ -26,13 +26,14 @@ export default function Error404Page() {
           <p className="mb-12 max-w-screen-md text-center text-stone-500 md:text-lg">
             The page you're looking for doesn't exist.
           </p>
-
-          <a
-            href="#"
-            className="inline-block rounded-lg bg-stone-200 px-8 py-3 text-center text-sm font-semibold text-stone-500 outline-none ring-orange-300 transition duration-100 hover:bg-stone-300 focus-visible:ring active:text-stone-700 md:text-base"
-          >
-            Go home
-          </a>
+          <Link href="/">
+            <a
+              href="#"
+              className="inline-block rounded-lg bg-stone-200 px-8 py-3 text-center text-sm font-semibold text-stone-500 outline-none ring-orange-300 transition duration-100 hover:bg-stone-300 focus-visible:ring active:text-stone-700 md:text-base"
+            >
+              Go home
+            </a>
+          </Link>
         </div>
       </div>
     </div>
