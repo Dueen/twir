@@ -1,10 +1,8 @@
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 import ArrowUp from "@/components/icons/ArrowUp";
-import logoWhite from "@/images/twir-logo-white.png";
-import logoBlack from "@/images/twir-logo-black.png";
+import Logo from "@/components/Logo";
 
 const links = [
   {
@@ -22,20 +20,6 @@ const links = [
 ];
 
 export function IndexLayout({ children }: any) {
-  const [logo, setLogo] = React.useState(logoWhite);
-
-  React.useEffect(() => {
-    const mql = window.matchMedia("(prefers-color-scheme: dark)");
-
-    setLogo(mql.matches ? logoBlack : logoWhite);
-
-    const onChange = (e: MediaQueryListEvent) => {
-      setLogo(e.matches ? logoBlack : logoWhite);
-    };
-
-    mql.onchange = onChange;
-  }, []);
-
   return (
     <>
       <div className="text-stone-700 dark:text-stone-50 lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-112 lg:items-start lg:overflow-y-auto xl:w-120">
@@ -45,14 +29,7 @@ export function IndexLayout({ children }: any) {
               className="relative mx-auto block w-48 overflow-hidden shadow-xl shadow-stone-200 dark:shadow-stone-800 sm:w-48 lg:mx-0 lg:w-60"
               aria-label="Homepage"
             >
-              <Image
-                src={logo}
-                alt="logo"
-                layout="responsive"
-                sizes="(min-width: 1024px) 18rem, (min-width: 640px) 14rem, 10rem"
-                loading="lazy"
-                placeholder="blur"
-              />
+              <Logo />
               <div className="absolute inset-0 rounded-lg ring-1 ring-inset ring-black/10 sm:rounded-xl lg:rounded-2xl" />
             </a>
           </Link>

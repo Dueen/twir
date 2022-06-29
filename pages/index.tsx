@@ -8,6 +8,8 @@ import { atomWithStorage } from "jotai/utils";
 
 import { getAllIssues } from "@/lib/octokit";
 import { Container } from "@/components/Container";
+import { IndexLayout } from "@/components/IndexLayout";
+
 import ChevronUp from "@/components/icons/ChevronUp";
 import ChevronDown from "@/components/icons/ChevronDown";
 
@@ -39,7 +41,7 @@ export default function Home({ allIssues }: { allIssues: Array<any> }) {
   const issues = useAtomValue(issuesAtom);
 
   return (
-    <>
+    <React.Fragment>
       <Head>
         <title>TWIR</title>
         <meta
@@ -47,22 +49,19 @@ export default function Home({ allIssues }: { allIssues: Array<any> }) {
           content="An unofficial alternative This Week In Rust interface."
         />
       </Head>
-      {/* <Provider initialValues={[]}> */}
-      <div className="pt-16 pb-12 sm:pb-4 lg:pt-12">
-        <Container>
-          <h1 className="mb-2 text-2xl font-bold leading-7 text-stone-900 dark:text-stone-50">
-            Issues
-          </h1>
-          <ToolBar />
-        </Container>
-        <div className="relative divide-y divide-stone-200 dark:divide-stone-600 sm:mt-4 lg:mt-8 lg:border-t lg:border-stone-200 dark:lg:border-stone-600">
-          {issues.map((issue: any) => (
-            <IssueEntry key={issue.id} issue={issue} />
-          ))}
+      <IndexLayout>
+        <div className="pt-16 pb-12 sm:pb-4 lg:pt-8">
+          <Container>
+            <ToolBar />
+          </Container>
+          <div className="relative divide-y divide-stone-200 dark:divide-stone-600 sm:mt-4 lg:mt-8 lg:border-t lg:border-stone-200 dark:lg:border-stone-600">
+            {issues.map((issue: any) => (
+              <IssueEntry key={issue.id} issue={issue} />
+            ))}
+          </div>
         </div>
-      </div>
-      {/* </Provider> */}
-    </>
+      </IndexLayout>
+    </React.Fragment>
   );
 }
 
@@ -104,11 +103,12 @@ const IssueEntry = ({ issue }: any) => {
 };
 
 const itemClasses = cx(
-  "radix-state-on:bg-lightorange-400/70 dark:radix-state-on:bg-lightorange-600/70 flex items-center justify-center",
-  "inline-flex items-center justify-center bg-stone-200 dark:bg-stone-600",
+  "radix-state-on:bg-orange-500/80 radix-state-on:text-stone-900 flex items-center justify-center",
+  "inline-flex items-center justify-center bg-stone-200 dark:bg-stone-600 text-stone-400 dark:text-stone-800 transition-colors duration-200",
   "border-y p-2 first:rounded-l-md first:border-x last:rounded-r-md last:border-x",
-  "border-stone-900 radix-state-on:border-transparent dark:border-stone-800 dark:radix-state-on:border-transparent",
-  "focus:relative focus:outline-none focus-visible:z-20 focus-visible:ring focus-visible:ring-amber-500 focus-visible:ring-opacity-75"
+  "border-stone-500 dark:border-stone-900 radix-state-on:border-transparent dark:border-stone-800 dark:radix-state-on:border-transparent",
+  "focus:relative focus:outline-none focus-visible:z-20 focus-visible:ring focus-visible:ring-amber-500 focus-visible:ring-opacity-75",
+  "hover:radix-state-off:text-stone-600 hover:radix-state-off:bg-orange-400/80"
 );
 
 const ToolBar = () => {
@@ -118,7 +118,7 @@ const ToolBar = () => {
     <ToolbarPrimitive.Toolbar className="flex w-full rounded-md border border-stone-200 bg-stone-100 p-2 text-stone-900 shadow-sm shadow-stone-100 dark:border-stone-600 dark:bg-stone-600 dark:text-stone-50 dark:shadow-stone-900">
       <ToolbarPrimitive.ToggleGroup
         type="single"
-        className="flex"
+        className="group flex"
         defaultValue="newest"
         value={sortBy}
       >
@@ -126,17 +126,19 @@ const ToolBar = () => {
           value="newest"
           aria-label="Newest"
           className={itemClasses}
+          name="sortby-newest"
           onClick={() => setSortBy("newest")}
         >
-          <ChevronDown className="h-4 w-4 text-stone-900" />
+          <ChevronDown className="h-4 w-4 fill-current" />
         </ToolbarPrimitive.ToggleItem>
         <ToolbarPrimitive.ToggleItem
           value="oldest"
           aria-label="Oldest"
           className={itemClasses}
+          name="sortby-oldest"
           onClick={() => setSortBy("oldest")}
         >
-          <ChevronUp className="h-4 w-4 text-stone-900" />
+          <ChevronUp className="h-4 w-4 fill-current" />
         </ToolbarPrimitive.ToggleItem>
       </ToolbarPrimitive.ToggleGroup>
       <ToolbarPrimitive.ToolbarSeparator className="mx-2 w-px bg-stone-300 dark:bg-stone-900" />

@@ -122,7 +122,11 @@ export default function Issue({ content, meta }: GetStaticPropsResult) {
       <Head>
         <title>{`TWIR | ${meta.title}`}</title>
       </Head>
-      <IssueLayout isFirst={meta.isFirst} isLast={meta.isLast}>
+      <IssueLayout
+        isFirst={meta.isFirst}
+        isLast={meta.isLast}
+        title={meta.title}
+      >
         <AnimatePresence exitBeforeEnter>
           <motion.div
             className="prose prose-stone max-w-none bg-stone-50 p-10 text-left prose-a:text-orange-500 hover:prose-a:text-orange-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-orange-500/80"
