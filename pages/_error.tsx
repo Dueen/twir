@@ -3,7 +3,9 @@ import Link from "next/link";
 
 import Logo from "@/components/Logo";
 
-export default function Error404Page() {
+import type {} from "next/types";
+
+export default function Error({ statusCode }: { statusCode: number }) {
   return (
     <div className="flex h-screen w-screen items-center justify-center py-6 sm:py-8 lg:py-12">
       <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
@@ -20,11 +22,11 @@ export default function Error404Page() {
             </a>
           </Link>
           <h1 className="mb-2 text-center text-2xl font-bold text-stone-800 dark:text-stone-100 md:text-3xl">
-            Page not found
+            Page not found: {statusCode}
           </h1>
 
           <p className="mb-12 max-w-screen-md text-center text-stone-500 md:text-lg">
-            The page you're looking for doesn't exist.
+            The page you&apos;re looking for doesn&apos;t exist.
           </p>
           <Link href="/">
             <a
@@ -39,3 +41,9 @@ export default function Error404Page() {
     </div>
   );
 }
+
+// @ts-ignore
+Error.getInitialProps = ({ res, err }) => {
+  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
+  return { statusCode };
+};

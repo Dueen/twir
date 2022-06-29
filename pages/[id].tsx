@@ -71,7 +71,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }));
   return {
     paths: paths,
-    fallback: "blocking",
+    fallback: false,
   };
 };
 
@@ -86,14 +86,21 @@ export const getStaticProps: GetStaticProps = async ({
       (entry) => extractIssueID(entry.text) === params.id
     );
 
+    if (!issue) {
+      return {
+        notFound: true,
+        props: {},
+      };
+    }
+
     const meta = {
-      title: extractTitle(issue!.text),
+      title: extractTitle(issue.text),
       isFirst: issue!.id === "1",
       isLast: issue!.id === LAST_ISSUE_ID,
     };
 
     // insert frontmatter
-    const withFrontmatter = insertFrontMatter(issue ? issue.text : "");
+    const withFrontmatter = insertFrontMatter(issue.text);
 
     // remove comment
     const withoutComment = removeComments(withFrontmatter);
