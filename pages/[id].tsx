@@ -79,6 +79,21 @@ export const getStaticProps: GetStaticProps = async ({
   params,
 }: GetStaticPropsContext) => {
   await avoidRateLimit();
+
+  if (
+    !params ||
+    isNaN(Number(params.id)) ||
+    Number(params.id) < 1 ||
+    Number(params.id) > Number(LAST_ISSUE_ID)
+  ) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+        // statusCode: 301
+      },
+    };
+  }
   if (params && params.id) {
     const issues = await getAllIssues();
 
@@ -88,8 +103,11 @@ export const getStaticProps: GetStaticProps = async ({
 
     if (!issue) {
       return {
-        notFound: true,
-        props: {},
+        redirect: {
+          destination: "/",
+          permanent: false,
+          // statusCode: 301
+        },
       };
     }
 

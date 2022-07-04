@@ -8,28 +8,11 @@ import CheckIcon from "@/components/icons/Check";
 import type { ExtractAtomValue } from "jotai";
 
 const AllAvailableYears = [
-  "2022",
-  "2021",
-  "2020",
-  "2019",
-  "2018",
-  "2017",
-  "2016",
-  "2015",
-  "2014",
-  "2013",
-] as const;
+  2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013,
+];
 
 export const yearsAtom = atomWithStorage("yearsFilter", AllAvailableYears);
 export type Years = ExtractAtomValue<typeof yearsAtom>;
-
-// const formatYears = (years: Years) => {
-//   return years.reduce((acc, year) => {
-//     let string; // eslint-disable-line prefer-const
-//     if (Number(year) - Number(acc) == 1) {
-//     }
-//   }, "0");
-// };
 
 export const YearPicker = () => {
   const [years, setYears] = useAtom(yearsAtom);
@@ -45,29 +28,26 @@ export const YearPicker = () => {
   return (
     <Listbox value={years} onChange={handleChange} multiple>
       {({ open }) => (
-        <div className="flex max-w-lg items-center rounded-md border border-stone-300 dark:border-stone-500">
-          <Listbox.Label className="block px-5 text-sm font-medium text-stone-700 dark:text-stone-100">
+        <div className="flex w-full items-center rounded-md border border-stone-300 bg-white dark:border-stone-500 dark:bg-stone-700">
+          <Listbox.Label className="block min-w-[96px] px-5 text-center text-sm font-medium text-stone-700 dark:text-stone-100">
             Years
           </Listbox.Label>
-          <div className="relative flex-grow rounded-r-md">
-            <Listbox.Button className="min-w-[50px] max-w-xs cursor-default truncate rounded-r-md border-l border-stone-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-stone-500 dark:bg-stone-600 sm:text-sm">
+          <div className="relative flex-wrap rounded-r-md">
+            <Listbox.Button className="w-full cursor-default rounded-r-md border-l border-stone-300 py-2 pl-3 pr-10 text-left shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-stone-500 sm:text-sm">
               {years
-                .map(Number)
                 .sort()
                 .reverse()
                 .map((year) => {
                   return (
                     <span
                       key={year}
-                      className="mx-px inline-block rounded-sm border border-stone-500/40 bg-white px-1 text-xs dark:bg-stone-900/50 md:text-sm"
+                      className="ml-2 mb-1 inline-block min-w-[56px] rounded-sm border border-stone-500/40 bg-stone-50 px-1 text-center text-sm dark:bg-stone-900/50 md:text-sm"
                     >
                       {year}
                     </span>
                   );
                 })}
-              &nbsp;
             </Listbox.Button>
-
             <Transition
               show={open}
               as={React.Fragment}
