@@ -3,24 +3,14 @@ import Head from "next/head";
 import Link from "next/link";
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import cx from "classnames";
-import {
-  useSetAtom,
-  atom,
-  useAtom,
-  useAtomValue,
-  ExtractAtomValue,
-} from "jotai";
+import { atom, useAtom, useAtomValue, ExtractAtomValue } from "jotai";
 import { atomWithStorage, useHydrateAtoms } from "jotai/utils";
 import { isSameYear } from "date-fns";
 
 import { getAllIssues } from "@/lib/octokit";
 import { Container } from "@/components/Container";
 import { IndexLayout } from "@/components/IndexLayout";
-import ChevronUp from "@/components/icons/ChevronUp";
-import ChevronDown from "@/components/icons/ChevronDown";
-import { YearPicker } from "@/components/YearPicker";
 
-// import type { Years } from "@/components/YearPicker";
 type SortValues = "newest" | "oldest";
 type Issues = Awaited<ReturnType<typeof getAllIssues>>;
 type Issue = Pick<Issues[number], "date" | "id" | "title">;
