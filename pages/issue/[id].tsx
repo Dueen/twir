@@ -67,6 +67,7 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   const issueID = Number(extractIssueID(file));
   const latestIssue = fs
     .readdirSync(path.join(process.cwd(), "tmp"))
+    .filter((file) => file.includes(".md"))
     .map((s) => Number(s.replace(".md", "")))
     .sort((a, b) => a - b)
     .pop();
