@@ -10,7 +10,7 @@ const links = [
     label: "This Week In Rust",
   },
   {
-    href: "https://www.github.com/dueen/twir.io",
+    href: "https://www.github.com/dueen/twir",
     label: "This project on Github",
   },
   {
