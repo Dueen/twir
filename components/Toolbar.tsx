@@ -42,7 +42,7 @@ export const ToolBar = () => {
   );
 
   return (
-    <ToolbarPrimitive.Toolbar className="flex w-full flex-col items-center justify-center space-y-2 rounded-md border border-stone-200 bg-stone-100 p-2 text-stone-900 shadow-sm shadow-stone-100 dark:border-stone-600 dark:bg-stone-600 dark:text-stone-50 dark:shadow-stone-900">
+    <ToolbarPrimitive.Toolbar className="flex w-full max-w-4xl flex-col items-center justify-center space-y-2 rounded-md border border-stone-200 bg-stone-100 p-2 text-stone-900 shadow-sm shadow-stone-100 dark:border-stone-600 dark:bg-stone-600 dark:text-stone-50 dark:shadow-stone-900">
       {/* Sort By Filter */}
       <div className="flex w-full items-center rounded-md border border-stone-300 bg-white dark:border-stone-500 dark:bg-stone-700">
         <label

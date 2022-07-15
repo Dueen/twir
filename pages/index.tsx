@@ -1,7 +1,9 @@
+import { readFile } from "fs/promises";
+import path from "path";
+
 import * as React from "react";
 import Head from "next/head";
 import Link from "next/link";
-
 import { isSameYear } from "date-fns";
 import { atom, ExtractAtomValue, useAtomValue } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
@@ -9,9 +11,8 @@ import { useHydrateAtoms } from "jotai/utils";
 import { Container } from "@/components/Container";
 import { IndexLayout } from "@/components/IndexLayout";
 import { sortByAtom, ToolBar, yearsAtom } from "@/components/Toolbar";
-import { getAllIssues } from "@/lib/octokit";
 
-type Issues = Awaited<ReturnType<typeof getAllIssues>>;
+import type { Issues } from "@/scripts/prebuild.mjs";
 type Issue = Pick<Issues[number], "date" | "id" | "title">;
 type Years = ExtractAtomValue<typeof yearsAtom>;
 
@@ -60,9 +61,9 @@ export default function Home({ allIssues }: { allIssues: Issues }) {
       </Head>
       <IndexLayout>
         <div className="pt-8 pb-12 sm:pb-4">
-          <Container>
+          <div className="flex w-full justify-start px-4 sm:px-6 md:px-8 lg:px-20">
             <ToolBar />
-          </Container>
+          </div>
           <div className="relative divide-y divide-stone-200 dark:divide-stone-600 sm:mt-4 lg:mt-8 lg:border-t lg:border-stone-200 dark:lg:border-stone-600">
             {issues.map((issue: any) => (
               <IssueEntry key={issue.id} issue={issue} />
@@ -101,7 +102,7 @@ const IssueEntry = ({ issue }: any) => {
             id={`issue-${issue.id}-title`}
             className="mt-2 text-lg font-bold text-stone-900"
           >
-            <Link href={`/${issue.id}`}>
+            <Link href={`/issue/${issue.id}`}>
               <a>{issue.title}</a>
             </Link>
           </h2>
@@ -114,13 +115,9 @@ const IssueEntry = ({ issue }: any) => {
 const DAY_IN_SECONDS = 24 * 60 * 60;
 
 export const getStaticProps = async () => {
-  const allIssues = await getAllIssues();
-
-  const issues = allIssues.map((issue) => ({
-    date: issue.date.toISOString(),
-    id: issue.id,
-    title: issue.title,
-  }));
+  const filePath = path.join(process.cwd(), "tmp/meta.json");
+  const allIssues = await readFile(filePath, "utf8");
+  const issues = JSON.parse(allIssues);
 
   return {
     props: {

@@ -1,15 +1,25 @@
+#!/usr/bin/env node
+
+import * as dotenv from "dotenv";
+import { mkdirSync, writeFileSync, existsSync } from "fs";
+import path from "path";
+
 import { Octokit as createOctokit } from "@octokit/core";
 import { throttling } from "@octokit/plugin-throttling";
 
-import type { Blob, Tree, Repository } from "@octokit/graphql-schema";
-
-type MappedEntries = ReturnType<typeof mapEntries>;
+import type { Blob, Repository, Tree } from "@octokit/graphql-schema";
 type Entry = NonNullable<Tree["entries"]>[number];
 type ThrottleOptions = {
   method: string;
   url: string;
   request: { retryCount: number };
 };
+
+// Load environment variables from .env.local file in dev
+if (process.env.NODE_ENV !== "production") {
+  console.info("loading environment variables");
+  dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+}
 
 const Octokit = createOctokit.plugin(throttling);
 
@@ -95,9 +105,6 @@ const extractIssueID = (text: string) => {
   return "0";
 };
 
-const sortEntriesDesc = (a: MappedEntries, b: MappedEntries) =>
-  b.date.getTime() - a.date.getTime();
-
 const mapEntries = (entry: Entry) => {
   // FIXME: fix these types
   const text = (entry.object as any).text as string;
@@ -115,16 +122,12 @@ const mapEntries = (entry: Entry) => {
   return {
     date,
     id,
-    name: entry.name,
-    path: entry.path ?? null,
-    sourceUrl,
     text,
     title,
   };
 };
 
-export async function getAllIssues() {
-  await avoidRateLimit();
+async function getAllIssues() {
   type QueryAllResult = {
     repository: Repository & {
       object: Tree & { entries: Tree["entries"] & { object: Blob } };
@@ -159,40 +162,47 @@ export async function getAllIssues() {
     const onlyTWIR = onlyMarkdown.filter(filterTWIR);
 
     // Map the entries to a more useful format
-    const mappedEntries = onlyTWIR.map(mapEntries);
+    const mappedIssues = onlyTWIR.map(mapEntries);
 
-    // Sort the entries by date descending order
-    const sortedEntries = mappedEntries.sort(sortEntriesDesc);
-
-    return sortedEntries;
+    return mappedIssues;
   }
 
-  throw new Error("could not get issues");
+  return [];
 }
 
-export async function getIssueById(searchID: string) {
-  await avoidRateLimit();
+async function main() {
   const issues = await getAllIssues();
 
-  const issue = issues.find((entry) => extractIssueID(entry.text) === searchID);
-  if (issue) {
-    return issue;
+  const tmpDir = path.join(process.cwd(), "tmp");
+
+  if (!existsSync(tmpDir)) {
+    mkdirSync(tmpDir);
   }
-  return issues[0];
+
+  for (const issue of issues) {
+    writeFileSync(`${tmpDir}/${issue.id}.md`, issue.text, {
+      encoding: "utf8",
+    });
+  }
+
+  writeFileSync(
+    `${tmpDir}/meta.json`,
+    JSON.stringify(
+      issues.map((issue) => ({
+        date: issue.date.toISOString(),
+        id: issue.id,
+        title: issue.title,
+      }))
+    )
+  );
+  console.log("✅ Prebuild script succeeded");
 }
 
-let lastFetch = new Date();
-// https://github.com/vercel/next.js/discussions/18550
-export async function avoidRateLimit() {
-  if (process.env.NEXT_PHASE === "phase-production-build") {
-    let sinceLastFetch = new Date().getTime() - lastFetch.getTime();
-    if (sinceLastFetch < 5000) {
-      await sleep();
-    }
-    lastFetch = new Date();
-  }
-}
+main().catch((e) => {
+  console.error("❌ Prebuild script failed");
+  console.error(e);
+  process.exit(1);
+});
 
-function sleep(ms = 5000) {
-  return new Promise((res) => setTimeout(res, ms));
-}
+export type Issues = Awaited<ReturnType<typeof getAllIssues>>;
+export {};

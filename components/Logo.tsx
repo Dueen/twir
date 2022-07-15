@@ -23,7 +23,6 @@ const Logo = () => {
       src={logo}
       alt="logo"
       layout="responsive"
-      sizes="(min-width: 1024px) 18rem, (min-width: 640px) 14rem, 10rem"
       loading="lazy"
       placeholder="blur"
     />

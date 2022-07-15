@@ -33,6 +33,10 @@ module.exports = {
           800: "#945100",
           900: "#5C3300",
         },
+        lightgray: "#e0e0e0",
+        gray: "#C0C0C0",
+        darkgray: "#555555",
+        yellow: "#ffc832",
       },
       fontFamily: {
         alfa: ["Alfa Slab One", "cursive"],
