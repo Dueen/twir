@@ -85,9 +85,13 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
     .use(rehypeStringify)
     .process(file);
 
+  const html = String(vFile)
+    .replace(/\{\%\sblockquote\s\%\}/gi, "<blockquote>")
+    .replace(/\{\%\sendblockquote\s\%\}/gi, "</blockquote>");
+
   return {
     props: {
-      html: String(vFile),
+      html,
       meta,
     },
     revalidate: DAY_IN_SECONDS,
