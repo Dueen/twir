@@ -105,6 +105,25 @@ const extractIssueID = (text: string) => {
   return "0";
 };
 
+const insertFrontMatter = (content: string) => {
+  const match = /[\n]{2}/.exec(content);
+  if (match) {
+    // Add opening separator
+    let newString = "---\n" + content;
+
+    // Add closing separator
+    const closingSeparator = "\n---";
+    newString =
+      newString.slice(0, match.index + closingSeparator.length) +
+      closingSeparator +
+      newString.slice(match.index + closingSeparator.length);
+
+    return newString;
+  } else {
+    return content;
+  }
+};
+
 const mapEntries = (entry: Entry) => {
   // FIXME: fix these types
   const text = (entry.object as any).text as string;
@@ -180,7 +199,8 @@ async function main() {
   }
 
   for (const issue of issues) {
-    writeFileSync(`${tmpDir}/${issue.id}.md`, issue.text, {
+    const text = insertFrontMatter(issue.text);
+    writeFileSync(`${tmpDir}/${issue.id}.md`, text, {
       encoding: "utf8",
     });
   }

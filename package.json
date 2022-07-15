@@ -59,6 +59,7 @@
     "prettier-plugin-tailwindcss": "^0.1.11",
     "rehype-stringify": "^9.0.3",
     "remark-comment-config": "^7.0.1",
+    "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
     "remark-github": "^11.2.3",
     "remark-linkify-regex": "^1.2.1",
