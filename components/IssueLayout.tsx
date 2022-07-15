@@ -8,12 +8,7 @@ import ChevronLeft from "@/components/icons/ChevronLeft";
 import ChevronRight from "@/components/icons/ChevronRight";
 import Logo from "@/components/Logo";
 
-type Meta = {
-  title: string;
-  hasNext: boolean;
-  hasPrev: boolean;
-};
-
+import type { Meta } from "@/types";
 type IssueLayoutProps = React.PropsWithChildren<{
   meta: Meta;
 }>;

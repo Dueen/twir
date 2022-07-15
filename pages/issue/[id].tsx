@@ -14,11 +14,7 @@ import rehypeStringify from "rehype-stringify";
 import IssueLayout from "@/components/IssueLayout";
 
 import type { GetStaticProps, GetStaticPaths } from "next/types";
-type Meta = {
-  title: string;
-  hasNext: boolean;
-  hasPrev: boolean;
-};
+import type { Meta } from "@/types";
 
 const extractTitle = (string: string) => /title:\s(.*)/gi.exec(string)![1];
 
