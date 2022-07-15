@@ -16,7 +16,6 @@
 
 # production
 /build
-pages/issue
 
 # misc
 .DS_Store

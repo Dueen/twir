@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate": "npx ts-node --esm scripts/prebuild.mts",
+    "predev": "npm run generate",
     "dev": "next dev",
-    "prebuild": "npx ts-node --esm scripts/prebuild.mts",
+    "prebuild": "npm run generate",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
