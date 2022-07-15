@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "npx ts-node --esm scripts/prebuild.mts",
-    "build": "next build --profile --debug",
-    "postbuild": "npx rimraf tmp",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "clean:next": "rm -rf .next",
