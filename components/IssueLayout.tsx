@@ -1,8 +1,8 @@
 import * as React from "react";
-import Link from "next/link";
-import Head from "next/head";
-import { useRouter } from "next/router";
 import { AnimatePresence, motion } from "framer-motion";
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 import ChevronLeft from "@/components/icons/ChevronLeft";
 import ChevronRight from "@/components/icons/ChevronRight";
@@ -10,8 +10,8 @@ import Logo from "@/components/Logo";
 
 type Meta = {
   title: string;
-  isFirst: boolean;
-  isLast: boolean;
+  hasNext: boolean;
+  hasPrev: boolean;
 };
 
 type IssueLayoutProps = React.PropsWithChildren<{
@@ -41,7 +41,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
             <div>
               <nav className="flex flex-col p-2">
                 <ul className="space-y-1 border-t border-stone-400 pt-4 dark:border-stone-600">
-                  {Boolean(meta.isFirst) === false ? (
+                  {Boolean(meta.hasNext) === false ? (
                     <li>
                       <Link href={`/issue/${Number(router.query.id) - 1}`}>
                         <a
@@ -53,7 +53,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
                       </Link>
                     </li>
                   ) : null}
-                  {Boolean(meta.isLast) === false ? (
+                  {Boolean(meta.hasPrev) === false ? (
                     <li>
                       <Link href={`/issue/${Number(router.query.id) + 1}`}>
                         <a
