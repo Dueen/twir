@@ -107,21 +107,9 @@ const extractIssueID = (text: string) => {
 
 const insertFrontMatter = (content: string) => {
   const match = /[\n]{2}/.exec(content);
-  if (match) {
-    // Add opening separator
-    let newString = "---\n" + content;
-
-    // Add closing separator
-    const closingSeparator = "\n---";
-    newString =
-      newString.slice(0, match.index + closingSeparator.length) +
-      closingSeparator +
-      newString.slice(match.index + closingSeparator.length);
-
-    return newString;
-  } else {
-    return content;
-  }
+  return match
+    ? `---\n${content.slice(0, match.index)}\n---${content.slice(match.index)}`
+    : content;
 };
 
 const mapEntries = (entry: Entry) => {
