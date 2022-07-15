@@ -3,8 +3,6 @@ import Link from "next/link";
 
 import Logo from "@/components/Logo";
 
-import type {} from "next/types";
-
 export default function Error({ statusCode }: { statusCode: number }) {
   return (
     <div className="flex h-screen w-screen items-center justify-center py-6 sm:py-8 lg:py-12">

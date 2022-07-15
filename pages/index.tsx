@@ -2,11 +2,11 @@ import { readFile } from "fs/promises";
 import path from "path";
 
 import * as React from "react";
-import Head from "next/head";
-import Link from "next/link";
 import { isSameYear } from "date-fns";
 import { atom, ExtractAtomValue, useAtomValue } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
+import Head from "next/head";
+import Link from "next/link";
 
 import { Container } from "@/components/Container";
 import { IndexLayout } from "@/components/IndexLayout";

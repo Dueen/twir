@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import cx from "classnames";
-import { useAtom, ExtractAtomValue } from "jotai";
+import { ExtractAtomValue, useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
 type SortValues = "newest" | "oldest";

@@ -1,6 +1,7 @@
 import * as React from "react";
-import Logo from "@/components/Logo";
 import Link from "next/link";
+
+import Logo from "@/components/Logo";
 
 const Error404 = () => (
   <React.Fragment>

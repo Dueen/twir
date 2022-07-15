@@ -21,7 +21,7 @@ const links = [
 
 export function IndexLayout({ children }: any) {
   return (
-    <>
+    <React.Fragment>
       <nav className="text-stone-700 dark:text-stone-50 lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-112 lg:items-start lg:overflow-y-auto xl:w-120">
         <div className="relative z-10 mx-auto px-4 pb-4 pt-10 sm:px-6 md:max-w-2xl md:px-4 lg:min-h-full lg:flex-auto lg:border-r lg:border-stone-200 lg:py-12 lg:px-8 dark:lg:border-stone-600 xl:px-12">
           <Link href="/">
@@ -63,6 +63,6 @@ export function IndexLayout({ children }: any) {
       <main className="border-t border-stone-200 dark:border-stone-600 lg:relative lg:ml-112 lg:mb-28 lg:border-t-0 xl:ml-120">
         <div className="relative">{children}</div>
       </main>
-    </>
+    </React.Fragment>
   );
 }

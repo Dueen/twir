@@ -1,8 +1,8 @@
 import * as React from "react";
 import Image from "next/image";
 
-import logoLight from "@/images/twir-logo-white.png";
 import logoDark from "@/images/twir-logo-black.png";
+import logoLight from "@/images/twir-logo-white.png";
 
 const Logo = () => {
   const [logo, setLogo] = React.useState(logoLight);
