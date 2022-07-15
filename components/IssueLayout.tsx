@@ -1,11 +1,8 @@
 import * as React from "react";
-import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
 import Link from "next/link";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { AnimatePresence, motion } from "framer-motion";
-import parseHTML from "html-react-parser";
-import { MDXProvider } from "@mdx-js/react";
-import Image from "next/image";
 
 import ChevronLeft from "@/components/icons/ChevronLeft";
 import ChevronRight from "@/components/icons/ChevronRight";
@@ -16,33 +13,23 @@ type Meta = {
   isFirst: boolean;
   isLast: boolean;
 };
+
 type IssueLayoutProps = React.PropsWithChildren<{
   meta: Meta;
 }>;
-
-const buttonClasses =
-  "group-hover:bg-lightorange-400 text-stone-900/80 bg-stone-200 dark:bg-stone-600 font-bold p-2 rounded-full items-center group-hover:text-orange-600 dark:text-stone-900 flex";
-
-const ResponsiveImage = (props: any) => (
-  <Image alt={props.alt} layout="responsive" {...props} />
-);
-
-const components = {
-  img: ResponsiveImage,
-  a: (props: any) => (
-    <Link href={props.href}>
-      <a className="text-stone-900 dark:text-stone-50">{props.children}</a>
-    </Link>
-  ),
-};
 
 const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
   const router = useRouter();
 
   return (
-    <MDXProvider components={components}>
-      <div className="flex">
-        <div className="flex h-screen w-16 flex-col justify-between border-r bg-stone-200 dark:bg-stone-900">
+    <React.Fragment>
+      <Head>
+        <title>{meta.title}</title>
+        <meta name="description" content="This Week in Rust" />
+        <meta httpEquiv="Content-Type" content="text/html;charset=UTF-8" />
+      </Head>
+      <div className="flex h-screen w-screen overflow-x-hidden">
+        <div className="flex h-screen max-h-screen w-16 flex-col justify-between border-r bg-stone-200 dark:bg-stone-900">
           <div>
             <div className="inline-block h-16 w-16 items-center justify-center p-2">
               <Link href="/">
@@ -53,7 +40,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
             </div>
             <div>
               <nav className="flex flex-col p-2">
-                <ul className="space-y-1 border-t border-gray pt-4">
+                <ul className="space-y-1 border-t border-stone-400 pt-4 dark:border-stone-600">
                   {Boolean(meta.isFirst) === false ? (
                     <li>
                       <Link href={`/issue/${Number(router.query.id) - 1}`}>
@@ -90,7 +77,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              // key={meta.title || ""}
+              key={meta.title}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
               {children}
@@ -98,7 +85,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
           </AnimatePresence>
         </div>
       </div>
-    </MDXProvider>
+    </React.Fragment>
   );
 };
 
