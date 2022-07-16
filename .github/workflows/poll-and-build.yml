@@ -16,7 +16,7 @@ jobs:
         id: get_current_env
         uses: juliangruber/read-file-action@v1
         with:
-          path: ./.env.workflow
+          path: ./.github/.env.workflow
 
       - name: Echo current Commit
         run: echo "${{ steps.get_current_env.outputs.content }}"
