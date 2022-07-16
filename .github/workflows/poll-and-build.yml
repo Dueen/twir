@@ -3,6 +3,7 @@ name: Check for changes and commit every 12 hours
 on:
   schedule:
     - cron: 0 */12 * * *
+  workflow_dispatch:
 
 jobs:
   check_for_changes:
