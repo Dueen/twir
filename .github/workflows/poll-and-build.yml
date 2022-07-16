@@ -27,7 +27,7 @@ jobs:
           echo "::set-output name=current_commit::$CURRENT_TWIR_COMMIT"
 
       - name: Check current commit
-        run: echo ${{ steps.get_current_env.output.current_commit }}
+        run: echo ${{ steps.get_current_env.outputs.current_commit }}
 
       - name: Get latest TWIR commit
         id: get_latest_commit
@@ -49,3 +49,10 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git commit -am "Detected changes in rust-lang/this-week-in-rust"
           git push
+
+      - name: No changes made
+        if: ${{ failure() }}
+        run: |
+          echo No changes made
+          echo Current commit: ${{ steps.get_current_env.outputs.current_commit }}
+          echo Latest commit: ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}
