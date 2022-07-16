@@ -35,12 +35,10 @@ jobs:
       - name: Make changes
         if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data).sha }}
         run: |
-          touch .env.wokrflow
-          echo TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data).sha }} >> .env.wokrflow
-
-      - name: Push changes
-        if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data).sha }}
-        uses: ad-m/github-push-action@master
-        with:
-          ssh: true
-          branch: ${{ github.ref }}
+          touch .env.workflow
+          echo TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data).sha }} >> .env.workflow
+          git config --global user.name 'Dueen'
+          git config --global user.email 'dueen@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git commit -am "Detected changes in rust-lang/this-week-in-rust ${{ GITHUB_RUN_ID }}/${{ GITHUB_RUN_NUMBER }}"
+          git push
