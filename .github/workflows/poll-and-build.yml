@@ -24,7 +24,7 @@ jobs:
         run: |
           export CURRENT_TWIR_COMMIT=$(echo ${{ steps.get_current_env.outputs.content }} | cut -d'=' -f2)
           echo $CURRENT_TWIR_COMMIT
-          echo ""::set-output name=current_commit::$CURRENT_TWIR_COMMIT"
+          echo "::set-output name=current_commit::$CURRENT_TWIR_COMMIT"
 
       - name: Check current commit
         run: echo ${{ steps.get_current_env.output.current_commit }}
