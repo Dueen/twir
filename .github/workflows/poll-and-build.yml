@@ -39,9 +39,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check if should build
+        run: echo “::set-env name=should_build::$(${{ steps.set_commit_output.outputs.current_commit }} == ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }})”
+
       - name: Make changes
+        if: env.should_build
         run: |
-          ${{ steps.set_commit_output.outputs.current_commit }} == ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} && exit 0
           touch .env.workflow
           echo CURRENT_TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} > .env.workflow
           git config --global user.name 'Dueen'
