@@ -39,8 +39,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Same SHA - Exit gracefully
+        if: ${{ steps.set_commit_output.outputs.current_commit }} == ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}
+        run: |
+          exit 0
+
       - name: Make changes
-        if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}
         run: |
           touch .env.workflow
           echo CURRENT_TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} > .env.workflow
@@ -49,10 +53,3 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git commit -am "Detected changes in rust-lang/this-week-in-rust"
           git push
-
-      - name: No changes made
-        if: ${{ failure() }}
-        run: |
-          echo No changes made
-          echo Current commit: ${{ steps.set_commit_output.outputs.current_commit }}
-          echo Latest commit: ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}
