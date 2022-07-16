@@ -29,7 +29,8 @@ jobs:
           route: GET /repos/{owner}/{repo}/commits
           owner: rustlang
           repo: this-week-in-rust
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Echo Latest Commit
         run: echo "::${{ steps.get_latest_commit.outputs.data }}"
         # run: echo "::set-output name=latest_commit::${{ steps.get_latest_commit.outputs.data }}"
