@@ -9,6 +9,9 @@ jobs:
   check_for_changes:
     runs-on: ubuntu-latest
     steps:
+      - name: "Checkout source code"
+        uses: "actions/checkout@v3"
+
       - name: Read Current Workflow Env
         id: get_current_env
         uses: juliangruber/read-file-action@v1
