@@ -19,15 +19,19 @@ jobs:
           path: ./.github/.env.workflow
 
       - name: Echo current Commit
-        run: echo "${{ steps.get_current_env.outputs.content }}"
+        id: set_commit_output
+        run: echo "::set-output name=current_commit::$(echo ${{ steps.get_current_env.outputs.content }} | cut -d'=' -f2)"
         # run: echo "::set-output name=current_commit::${{ steps.get_current_env.outputs.content }}
+
+      - name: Check output
+        run: echo "::${{ steps.set_commit_output.outputs.current_commit }}"
 
       - name: Get Latest TWIR Commit
         id: get_latest_commit
         uses: octokit/request-action@v2.x
         with:
           route: GET /repos/{owner}/{repo}/commits
-          owner: rustlang
+          owner: rust-lang
           repo: this-week-in-rust
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
