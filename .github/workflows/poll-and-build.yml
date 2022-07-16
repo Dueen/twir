@@ -1,0 +1,27 @@
+name: Check for changes and commit every 12 hours
+
+on:
+  schedule:
+    - cron: 0 */12 * * *
+
+jobs:
+  check_for_changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read Current Workflow Env
+      - id: get_current_env
+      - uses: juliangruber/read-file-action@v1
+        with:
+          path: ./.github/.env.workflow
+        run: echo "${{ steps.get_current_env.outputs.content }}"
+        # run: echo "::set-output name=current_commit::${{ steps.get_current_env.outputs.content }}
+
+      - name: Get Latest TWIR Commit
+      - id: get_latest_commit
+      - uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/{owner}/{repo}/commits
+          owner: rustlang
+          repo: this-week-in-rust
+        run: echo "::${{ steps.get_latest_commit.outputs.data }}"
+        # run: echo "::set-output name=latest_commit::${{ steps.get_latest_commit.outputs.data }}"
