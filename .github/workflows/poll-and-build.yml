@@ -39,13 +39,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Same SHA - Exit gracefully
-        if: ${{ steps.set_commit_output.outputs.current_commit }} == ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}
-        run: |
-          exit 0
-
       - name: Make changes
         run: |
+          ${{ steps.set_commit_output.outputs.current_commit }} == ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} && exit 0
           touch .env.workflow
           echo CURRENT_TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} > .env.workflow
           git config --global user.name 'Dueen'
