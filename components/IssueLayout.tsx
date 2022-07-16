@@ -89,7 +89,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
             </div>
           </div>
         </div>
-        <main className="max-h-screen flex-1 overflow-y-auto">
+        <main className="max-h-screen flex-1 overflow-y-auto overflow-x-hidden">
           <AnimatePresence exitBeforeEnter>
             <motion.div
               className="prose prose-sm prose-stone mx-auto max-w-none bg-stone-50 p-10 prose-a:text-orange-500 hover:prose-a:text-orange-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-orange-500/80 md:prose-base lg:prose-lg xl:prose-xl"
