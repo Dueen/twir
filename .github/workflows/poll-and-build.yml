@@ -9,24 +9,20 @@ jobs:
   check_for_changes:
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout source code"
+      - name: Checkout source code
         uses: "actions/checkout@v3"
 
-      - name: Read Current Workflow Env
+      - name: Read current workflow env
         id: get_current_env
         uses: juliangruber/read-file-action@v1
         with:
-          path: ./.github/.env.workflow
+          path: ./.env.workflow
 
-      - name: Echo current Commit
+      - name: Echo current commit
         id: set_commit_output
         run: echo "::set-output name=current_commit::$(echo ${{ steps.get_current_env.outputs.content }} | cut -d'=' -f2)"
-        # run: echo "::set-output name=current_commit::${{ steps.get_current_env.outputs.content }}
 
-      - name: Check output
-        run: echo "::${{ steps.set_commit_output.outputs.current_commit }}"
-
-      - name: Get Latest TWIR Commit
+      - name: Get latest TWIR commit
         id: get_latest_commit
         uses: octokit/request-action@v2.x
         with:
@@ -35,6 +31,16 @@ jobs:
           repo: this-week-in-rust
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Echo Latest Commit
-        run: echo "::${{ steps.get_latest_commit.outputs.data }}"
-        # run: echo "::set-output name=latest_commit::${{ steps.get_latest_commit.outputs.data }}"
+
+      - name: Make changes
+        if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data).sha }}
+        run: |
+          touch .env.wokrflow
+          echo TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data).sha }} >> .env.wokrflow
+
+      - name: Push changes
+        if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data).sha }}
+        uses: ad-m/github-push-action@master
+        with:
+          ssh: true
+          branch: ${{ github.ref }}
