@@ -19,15 +19,9 @@ jobs:
           path: ./.env.workflow
           trim: true
 
-      - name: Echo current commit
+      - name: Set current commit
         id: set_commit_output
-        run: |
-          export CURRENT_TWIR_COMMIT=$(echo ${{ steps.get_current_env.outputs.content }} | cut -d'=' -f2)
-          echo $CURRENT_TWIR_COMMIT
-          echo "::set-output name=current_commit::$CURRENT_TWIR_COMMIT"
-
-      - name: Check current commit
-        run: echo ${{ steps.set_commit_output.outputs.current_commit }}
+        run: echo "::set-output name=current_commit::$(echo ${{ steps.get_current_env.outputs.content }} | cut -d'=' -f2)"
 
       - name: Get latest TWIR commit
         id: get_latest_commit
@@ -47,7 +41,7 @@ jobs:
         run: |
           touch .env.workflow
           echo CURRENT_TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} > .env.workflow
-          git config --global user.name 'Dueen'
+          git config --global user.name 'Dueen Eduarda'
           git config --global user.email 'dueen@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git commit -am "Detected changes in rust-lang/this-week-in-rust"
