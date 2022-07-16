@@ -33,10 +33,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Make changes
-        if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data).sha }}
+        if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}
         run: |
           touch .env.workflow
-          echo TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data).sha }} >> .env.workflow
+          echo TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} >> .env.workflow
           git config --global user.name 'Dueen'
           git config --global user.email 'dueen@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
