@@ -60,7 +60,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
             <div>
               <nav className="flex flex-col p-2">
                 <ul className="space-y-1 border-t border-stone-400 pt-4 dark:border-stone-600">
-                  {Boolean(meta.hasNext) === false ? (
+                  {Boolean(meta.hasNext) ? (
                     <li>
                       <Link href={`/issue/${Number(router.query.id) - 1}`}>
                         <a
@@ -72,7 +72,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
                       </Link>
                     </li>
                   ) : null}
-                  {Boolean(meta.hasPrev) === false ? (
+                  {Boolean(meta.hasPrev) ? (
                     <li>
                       <Link href={`/issue/${Number(router.query.id) + 1}`}>
                         <a
