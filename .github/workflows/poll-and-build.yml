@@ -17,10 +17,11 @@ jobs:
         uses: juliangruber/read-file-action@v1
         with:
           path: ./.env.workflow
+          trim: true
 
       - name: Echo current commit
         id: set_commit_output
-        run: echo "::set-output name=current_commit::${{ steps.get_current_env.outputs.content }} | awk -F '=' '{print $2}'"
+        run: echo ::set-output name=current_commit::$(echo ${{ steps.get_current_env.outputs.content }} | cut -d'=' -f2)
 
       - name: Check current commit
         run: echo ${{ steps.get_current_env.output.current_commit }}
@@ -39,7 +40,7 @@ jobs:
         if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}
         run: |
           touch .env.workflow
-          echo TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} > .env.workflow
+          echo CURRENT_TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} > .env.workflow
           git config --global user.name 'Dueen'
           git config --global user.email 'dueen@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
