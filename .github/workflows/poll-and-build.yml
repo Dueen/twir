@@ -30,7 +30,7 @@ jobs:
           owner: rustlang
           repo: this-week-in-rust
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Echo Latest Commit
         run: echo "::${{ steps.get_latest_commit.outputs.data }}"
         # run: echo "::set-output name=latest_commit::${{ steps.get_latest_commit.outputs.data }}"
