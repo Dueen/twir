@@ -3,7 +3,9 @@ import Link from "next/link";
 
 import Logo from "@/components/Logo";
 
-const Error404 = () => (
+import type { NextPage } from "next/types";
+
+const Error404: NextPage = () => (
   <React.Fragment>
     <div className="h-screen w-screen bg-gradient-to-bl from-white via-stone-100 to-orange-300">
       <div className="prose flex h-screen max-w-none flex-col items-center justify-center space-y-20">

@@ -20,7 +20,10 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
     <React.Fragment>
       <Head>
         <title>{meta.title}</title>
-        <meta name="description" content="This Week in Rust" />
+        <meta
+          name="description"
+          content="An unofficial, alternative This Week in Rust interface"
+        />
         <meta httpEquiv="Content-Type" content="text/html;charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
@@ -62,7 +65,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
                 <ul className="space-y-1 border-t border-stone-400 pt-4 dark:border-stone-600">
                   {Boolean(meta.hasPrev) ? (
                     <li>
-                      <Link href={`/issue/${Number(router.query.id) - 1}`}>
+                      <Link href={`/${Number(router.query.id) - 1}`}>
                         <a
                           className="group relative box-border flex justify-center rounded-md border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
                           title="Previous issue"
@@ -74,7 +77,7 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
                   ) : null}
                   {Boolean(meta.hasNext) ? (
                     <li>
-                      <Link href={`/issue/${Number(router.query.id) + 1}`}>
+                      <Link href={`/${Number(router.query.id) + 1}`}>
                         <a
                           className="group relative box-border flex justify-center rounded-md border border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
                           title="Next issue"

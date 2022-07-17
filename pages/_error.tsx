@@ -3,7 +3,9 @@ import Link from "next/link";
 
 import Logo from "@/components/Logo";
 
-export default function Error({ statusCode }: { statusCode: number }) {
+import type { ErrorProps } from "next/error";
+
+export default function Error({ statusCode }: ErrorProps) {
   return (
     <div className="flex h-screen w-screen items-center justify-center py-6 sm:py-8 lg:py-12">
       <div className="mx-auto max-w-screen-2xl px-4 md:px-8">

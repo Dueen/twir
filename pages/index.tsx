@@ -13,8 +13,16 @@ import { IndexLayout } from "@/components/IndexLayout";
 import { sortByAtom, ToolBar, yearsAtom } from "@/components/Toolbar";
 
 import type { Issues } from "@/scripts/prebuild.mjs";
+import type {
+  NextPage,
+  InferGetStaticPropsType,
+  GetStaticProps,
+} from "next/types";
 type Issue = Pick<Issues[number], "date" | "id" | "title">;
 type Years = ExtractAtomValue<typeof yearsAtom>;
+type IndexData = {
+  allIssues: Issue[];
+};
 
 // prettier-ignore
 const sortByNewest = (a: Issue, b: Issue) => new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -41,7 +49,61 @@ const issuesAtom = atom<Array<any>>((get) => {
   return filteredIssues;
 });
 
-export default function Home({ allIssues }: { allIssues: Issues }) {
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+
+const DAY_IN_SECONDS = 24 * 60 * 60;
+
+export const getStaticProps: GetStaticProps<IndexData> = async () => {
+  const filePath = path.join(process.cwd(), "tmp/meta.json");
+  const allIssues = await readFile(filePath, "utf8");
+  const issues = JSON.parse(allIssues);
+
+  return {
+    props: {
+      allIssues: issues,
+    },
+    revalidate: DAY_IN_SECONDS,
+  };
+};
+
+const IssueEntry = ({ issue }: any) => {
+  const date = new Date(issue.date);
+
+  return (
+    <article
+      aria-labelledby={`issue-${issue.id}-title`}
+      className={"py-10 sm:py-12"}
+    >
+      <Container>
+        <div className="flex flex-col items-start">
+          <time
+            dateTime={date.toISOString()}
+            className="-order-1 font-mono text-sm leading-7 text-stone-500 dark:text-stone-300"
+          >
+            {formatDate(date)}
+          </time>
+          <h2
+            id={`issue-${issue.id}-title`}
+            className="mt-2 text-lg font-bold text-stone-900"
+          >
+            <Link href={`/${issue.id}`}>
+              <a>{issue.title}</a>
+            </Link>
+          </h2>
+        </div>
+      </Container>
+    </article>
+  );
+};
+
+type IndexPageProps = InferGetStaticPropsType<typeof getStaticProps>;
+
+const IndexPage: NextPage<IndexPageProps> = ({ allIssues }) => {
   //@ts-ignore
   useHydrateAtoms([[allIssuesAtom, allIssues]]);
 
@@ -73,56 +135,6 @@ export default function Home({ allIssues }: { allIssues: Issues }) {
       </IndexLayout>
     </React.Fragment>
   );
-}
-
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-
-const IssueEntry = ({ issue }: any) => {
-  const date = new Date(issue.date);
-
-  return (
-    <article
-      aria-labelledby={`issue-${issue.id}-title`}
-      className={"py-10 sm:py-12"}
-    >
-      <Container>
-        <div className="flex flex-col items-start">
-          <time
-            dateTime={date.toISOString()}
-            className="-order-1 font-mono text-sm leading-7 text-stone-500 dark:text-stone-300"
-          >
-            {formatDate(date)}
-          </time>
-          <h2
-            id={`issue-${issue.id}-title`}
-            className="mt-2 text-lg font-bold text-stone-900"
-          >
-            <Link href={`/issue/${issue.id}`}>
-              <a>{issue.title}</a>
-            </Link>
-          </h2>
-        </div>
-      </Container>
-    </article>
-  );
 };
 
-const DAY_IN_SECONDS = 24 * 60 * 60;
-
-export const getStaticProps = async () => {
-  const filePath = path.join(process.cwd(), "tmp/meta.json");
-  const allIssues = await readFile(filePath, "utf8");
-  const issues = JSON.parse(allIssues);
-
-  return {
-    props: {
-      allIssues: issues,
-    },
-    revalidate: DAY_IN_SECONDS,
-  };
-};
+export default IndexPage;

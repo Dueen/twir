@@ -14,13 +14,14 @@ import rehypeStringify from "rehype-stringify";
 import IssueLayout from "@/components/IssueLayout";
 
 import type { GetStaticProps, GetStaticPaths } from "next/types";
+import type { NextPage, InferGetStaticPropsType } from "next/types";
 import type { Meta } from "@/types";
+type IssueData = {
+  html: string;
+  meta: Meta;
+};
 
 const extractTitle = (string: string) => /title:\s(.*)/gi.exec(string)![1];
-
-export default function Fetch({ html, meta }: { html: string; meta: Meta }) {
-  return <IssueLayout meta={meta}>{HTMLReactParser(html)}</IssueLayout>;
-}
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const files = fs.readdirSync(path.join(process.cwd(), "tmp"));
@@ -40,7 +41,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 const DAY_IN_SECONDS = 24 * 60 * 60;
 
-export const getStaticProps: GetStaticProps = async (ctx) => {
+export const getStaticProps: GetStaticProps<IssueData> = async (ctx) => {
   const id = Number(ctx.params?.id);
 
   const latestIssue = Number(
@@ -90,3 +91,11 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
     revalidate: DAY_IN_SECONDS,
   };
 };
+
+type IssuePageProps = InferGetStaticPropsType<typeof getStaticProps>;
+
+const IssuePage: NextPage<IssuePageProps> = ({ html, meta }) => {
+  return <IssueLayout meta={meta}>{HTMLReactParser(html)}</IssueLayout>;
+};
+
+export default IssuePage;
