@@ -26,7 +26,7 @@ export const IndexLayout: React.FC<React.PropsWithChildren<{}>> = ({
   return (
     <React.Fragment>
       <Head>
-        <title>TWIR</title>
+        <title>TWIR.US</title>
         <meta
           name="description"
           content="An unofficial, alternative This Week in Rust interface"

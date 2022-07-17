@@ -18,7 +18,7 @@ export default function Error({ statusCode }: ErrorProps) {
               <div className="h-20 w-20">
                 <Logo />
               </div>
-              TWIR
+              TWIR.US
             </a>
           </Link>
           <h1 className="mb-2 text-center text-2xl font-bold text-stone-800 dark:text-stone-100 md:text-3xl">
