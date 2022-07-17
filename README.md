@@ -1,3 +1,3 @@
 # TWIR.US
 
-## An unofficial alternative This Week In Rust interface.
+## An unofficial, alternative This Week In Rust interface.
