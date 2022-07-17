@@ -16,14 +16,18 @@ import IssueLayout from "@/components/IssueLayout";
 import type { GetStaticProps, GetStaticPaths } from "next/types";
 import type { NextPage, InferGetStaticPropsType } from "next/types";
 import type { Meta } from "@/types";
+import type { ParsedUrlQuery } from "querystring";
 type IssueData = {
   html: string;
   meta: Meta;
 };
+type Params = ParsedUrlQuery & {
+  id: string;
+};
 
 const extractTitle = (string: string) => /title:\s(.*)/gi.exec(string)![1];
 
-export const getStaticPaths: GetStaticPaths = async () => {
+export const getStaticPaths: GetStaticPaths<Params> = async () => {
   const files = fs.readdirSync(path.join(process.cwd(), "tmp"));
   const paths = files
     .filter((file) => file.includes(".md"))
@@ -41,7 +45,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 const DAY_IN_SECONDS = 24 * 60 * 60;
 
-export const getStaticProps: GetStaticProps<IssueData> = async (ctx) => {
+export const getStaticProps: GetStaticProps<IssueData, Params> = async (
+  ctx
+) => {
   const id = Number(ctx.params?.id);
 
   const latestIssue = Number(
