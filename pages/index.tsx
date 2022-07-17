@@ -59,7 +59,7 @@ const formatDate = (date: Date) =>
 const DAY_IN_SECONDS = 24 * 60 * 60;
 
 export const getStaticProps: GetStaticProps<IndexData> = async () => {
-  const filePath = path.join(process.cwd(), "tmp/meta.json");
+  const filePath = path.join(process.cwd(), "content/meta.json");
   const allIssues = await readFile(filePath, "utf8");
   const issues = JSON.parse(allIssues);
 

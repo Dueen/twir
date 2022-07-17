@@ -180,21 +180,21 @@ async function getAllIssues() {
 async function main() {
   const issues = await getAllIssues();
 
-  const tmpDir = path.join(process.cwd(), "tmp");
+  const contentDir = path.join(process.cwd(), "content");
 
-  if (!existsSync(tmpDir)) {
-    mkdirSync(tmpDir);
+  if (!existsSync(contentDir)) {
+    mkdirSync(contentDir);
   }
 
   for (const issue of issues) {
     const text = insertFrontMatter(issue.text);
-    writeFileSync(`${tmpDir}/${issue.id}.md`, text, {
+    writeFileSync(`${contentDir}/${issue.id}.md`, text, {
       encoding: "utf8",
     });
   }
 
   writeFileSync(
-    `${tmpDir}/meta.json`,
+    `${contentDir}/meta.json`,
     JSON.stringify(
       issues.map((issue) => ({
         date: issue.date.toISOString(),

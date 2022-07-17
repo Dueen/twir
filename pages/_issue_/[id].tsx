@@ -28,7 +28,7 @@ type Params = ParsedUrlQuery & {
 const extractTitle = (string: string) => /title:\s(.*)/gi.exec(string)![1];
 
 export const getStaticPaths: GetStaticPaths<Params> = async () => {
-  const files = fs.readdirSync(path.join(process.cwd(), "tmp"));
+  const files = fs.readdirSync(path.join(process.cwd(), "content"));
   const paths = files
     .filter((file) => file.includes(".md"))
     .map((file) => ({
@@ -52,7 +52,7 @@ export const getStaticProps: GetStaticProps<IssueData, Params> = async (
 
   const latestIssue = Number(
     fs
-      .readdirSync(path.join(process.cwd(), "tmp"))
+      .readdirSync(path.join(process.cwd(), "content"))
       .filter((file) => file.includes(".md"))
       .map((s) => Number(s.replace(".md", "")))
       .sort((a, b) => a - b)
@@ -68,7 +68,7 @@ export const getStaticProps: GetStaticProps<IssueData, Params> = async (
     };
   }
 
-  const filePath = path.join(process.cwd(), "tmp", `${id}.md`);
+  const filePath = path.join(process.cwd(), "content", `${id}.md`);
   const file = fs.readFileSync(filePath, "utf8");
 
   const vFile = await unified()

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import meta from "tmp/meta.json";
+import meta from "content/meta.json";
 
 import type { NextRequest } from "next/server";
 
