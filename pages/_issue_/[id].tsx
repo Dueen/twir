@@ -85,8 +85,6 @@ export const getStaticProps: GetStaticProps<IssueData, Params> = async (
 
   const meta = {
     title: extractTitle(file),
-    hasNext: id < latestIssue,
-    hasPrev: id > 1,
   };
 
   return {

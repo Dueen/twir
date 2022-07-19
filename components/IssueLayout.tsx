@@ -2,8 +2,8 @@ import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
+import { NavigationProvider, useNavigation } from "@/providers";
 import ChevronLeft from "@/components/icons/ChevronLeft";
 import ChevronRight from "@/components/icons/ChevronRight";
 import Logo from "@/components/Logo";
@@ -13,9 +13,49 @@ type IssueLayoutProps = React.PropsWithChildren<{
   meta: Meta;
 }>;
 
-const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
-  const router = useRouter();
+const NextButton = () => {
+  const { hasNext, prefetchNext, goToNext } = useNavigation();
 
+  if (!hasNext) {
+    return null;
+  }
+
+  return (
+    <li>
+      <button onClick={() => goToNext()} onPointerEnter={() => prefetchNext()}>
+        <a
+          className="group relative box-border flex justify-center rounded-md border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
+          title="Previous issue"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </a>
+      </button>
+    </li>
+  );
+};
+
+const PrevButton = () => {
+  const { hasPrev, prefetchPrev, goToPrev } = useNavigation();
+
+  if (!hasPrev) {
+    return null;
+  }
+
+  return (
+    <li>
+      <button onClick={() => goToPrev()} onPointerEnter={() => prefetchPrev()}>
+        <a
+          className="group relative box-border flex justify-center rounded-md border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
+          title="Previous issue"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </a>
+      </button>
+    </li>
+  );
+};
+
+const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
   return (
     <React.Fragment>
       <Head>
@@ -60,36 +100,14 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
                 </a>
               </Link>
             </div>
-            <div>
+            <NavigationProvider>
               <nav className="flex flex-col p-2">
                 <ul className="space-y-1 border-t border-stone-400 pt-4 dark:border-stone-600">
-                  {Boolean(meta.hasPrev) ? (
-                    <li>
-                      <Link href={`/${Number(router.query.id) - 1}`}>
-                        <a
-                          className="group relative box-border flex justify-center rounded-md border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
-                          title="Previous issue"
-                        >
-                          <ChevronLeft className="h-6 w-6" />
-                        </a>
-                      </Link>
-                    </li>
-                  ) : null}
-                  {Boolean(meta.hasNext) ? (
-                    <li>
-                      <Link href={`/${Number(router.query.id) + 1}`}>
-                        <a
-                          className="group relative box-border flex justify-center rounded-md border border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
-                          title="Next issue"
-                        >
-                          <ChevronRight className="h-6 w-6" />
-                        </a>
-                      </Link>
-                    </li>
-                  ) : null}
+                  <NextButton />
+                  <PrevButton />
                 </ul>
               </nav>
-            </div>
+            </NavigationProvider>
           </div>
         </div>
         <main className="max-h-screen flex-1 overflow-y-auto overflow-x-hidden">
