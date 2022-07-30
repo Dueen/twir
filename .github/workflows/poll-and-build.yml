@@ -33,8 +33,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Control flow
+        id: control
+        run: echo "::set-output name=should_build::$(echo ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}"
+
+      - name: check
+        run: |
+          "echo ${{ steps.control.outputs.should_build  }}"
+
       - name: Make changes
-        if: ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}
+        if: ${{ steps.control.outputs.should_build == true }}
         run: |
           touch .env.workflow
           echo CURRENT_TWIR_COMMIT=${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} > .env.workflow
