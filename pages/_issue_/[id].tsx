@@ -3,19 +3,22 @@ import path from "path";
 
 import * as React from "react";
 import HTMLReactParser from "html-react-parser";
-
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkGfm from "remark-gfm";
-import remarkRehype from "remark-rehype";
-import remarkFrontmatter from "remark-frontmatter";
 import rehypeStringify from "rehype-stringify";
+import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from "remark-gfm";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import { unified } from "unified";
 
 import IssueLayout from "@/components/IssueLayout";
 
-import type { GetStaticProps, GetStaticPaths } from "next/types";
-import type { NextPage, InferGetStaticPropsType } from "next/types";
 import type { Meta } from "@/types";
+import type {
+  GetStaticPaths,
+  GetStaticProps,
+  InferGetStaticPropsType,
+  NextPage,
+} from "next/types";
 import type { ParsedUrlQuery } from "querystring";
 type IssueData = {
   html: string;
@@ -99,7 +102,11 @@ export const getStaticProps: GetStaticProps<IssueData, Params> = async (
 type IssuePageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
 const IssuePage: NextPage<IssuePageProps> = ({ html, meta }) => {
-  return <IssueLayout meta={meta}>{HTMLReactParser(html)}</IssueLayout>;
+  return (
+    <React.Fragment>
+      <IssueLayout meta={meta}>{HTMLReactParser(html)}</IssueLayout>;
+    </React.Fragment>
+  );
 };
 
 export default IssuePage;
