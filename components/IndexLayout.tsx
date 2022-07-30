@@ -7,15 +7,15 @@ import Logo from "@/components/Logo";
 
 const links = [
   {
-    href: "https://www.this-week-in-rust.org",
+    href: "https://this-week-in-rust.org",
     label: "This Week In Rust",
   },
   {
-    href: "https://www.github.com/dueen/twir",
+    href: "https://github.com/dueen/twir",
     label: "This project on Github",
   },
   {
-    href: "https://www.github.com/rust-lang/this-week-in-rust",
+    href: "https://github.com/rust-lang/this-week-in-rust",
     label: "This Week In Rust on GitHub",
   },
 ];
