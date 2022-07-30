@@ -55,7 +55,7 @@ export const ToolBar = () => {
         <ToolbarPrimitive.ToggleGroup
           id="sortByFilter"
           type="single"
-          className="group flex w-full cursor-default flex-wrap space-x-2 rounded-r-md border-l border-stone-300 py-2 pl-3 pr-10 text-left shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-stone-500 sm:text-sm"
+          className="group flex w-full cursor-default flex-wrap space-x-2 rounded-r-md border-l border-stone-300 py-2 pl-3 pr-10 text-left font-semibold shadow-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-stone-500 sm:text-sm"
           defaultValue="newest"
           value={sortBy}
         >
@@ -101,9 +101,9 @@ export const ToolBar = () => {
               key={year}
               value={year}
               aria-label={year}
-              className="inline-block w-[64px] rounded-sm border border-stone-500/40 bg-stone-50 px-1 text-center text-sm transition-colors duration-200 radix-state-on:bg-orange-500/60 before:radix-state-on:content-['✓'] hover:radix-state-off:bg-orange-200/80 motion-reduce:transition-none dark:bg-stone-900/50 dark:radix-state-on:bg-orange-500/80 dark:hover:radix-state-off:bg-orange-400/80 md:text-sm"
+              className="inline-block w-[64px] rounded-sm border border-stone-500/40 bg-stone-50 px-1 text-center text-sm font-semibold transition-colors duration-200 radix-state-on:bg-orange-500/60 before:radix-state-on:content-['✓'] hover:radix-state-off:bg-orange-200/80 motion-reduce:transition-none dark:bg-stone-900/50 dark:radix-state-on:bg-orange-500/80 dark:hover:radix-state-off:bg-orange-400/80 md:text-sm"
             >
-              <span className="">&nbsp;{year}&nbsp;</span>
+              <span>&nbsp;{year}&nbsp;</span>
             </ToolbarPrimitive.ToggleItem>
           ))}
         </ToolbarPrimitive.ToggleGroup>
