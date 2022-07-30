@@ -37,10 +37,6 @@ jobs:
         id: control
         run: echo "::set-output name=should_build::$([ ${{ steps.set_commit_output.outputs.current_commit }} "!=" ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }} ] && echo true || echo false)"
 
-      - name: check
-        run: |
-          "echo ${{ steps.control.outputs.should_build  }}"
-
       - name: Make changes
         if: ${{ steps.control.outputs.should_build == true }}
         run: |
