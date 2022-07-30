@@ -123,7 +123,7 @@ const IndexPage: NextPage<IndexPageProps> = ({ allIssues }) => {
       </Head>
       <IndexLayout>
         <div className="pt-8 pb-12 sm:pb-4">
-          <div className="flex w-full justify-start px-4 sm:px-6 md:px-8 lg:px-20">
+          <div className="sticky top-0 z-10 flex w-full justify-start bg-stone-50/90 py-4 px-4  backdrop-blur-md  dark:bg-stone-800/80 sm:px-6 md:px-8 lg:px-20">
             <ToolBar />
           </div>
           <div className="relative divide-y divide-stone-200 dark:divide-stone-600 sm:mt-4 lg:mt-8 lg:border-t lg:border-stone-200 dark:lg:border-stone-600">
