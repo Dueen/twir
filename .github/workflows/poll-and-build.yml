@@ -35,7 +35,7 @@ jobs:
 
       - name: Control flow
         id: control
-        run: echo "::set-output name=should_build::$(echo ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }}"
+        run: echo "::set-output name=should_build::$(echo ${{ steps.set_commit_output.outputs.current_commit }} != ${{ fromJson(steps.get_latest_commit.outputs.data)[0].sha }})"
 
       - name: check
         run: |
