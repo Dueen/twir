@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "clean:next": "rm -rf .next",
-    "clean": "rm -rf .next && rm -rf node_modules"
+    "clean": "rm -rf .next && rm -rf node_modules",
+    "test": "cypress open"
   },
   "dependencies": {
     "@octokit/core": "^3.6.0",
@@ -34,6 +35,7 @@
     "@types/react": "18.0.12",
     "@types/react-dom": "18.0.5",
     "autoprefixer": "^10.4.7",
+    "cypress": "^10.3.1",
     "dotenv": "^16.0.1",
     "eslint": "8.17.0",
     "eslint-config-next": "12.1.6",
