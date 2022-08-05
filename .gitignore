@@ -49,3 +49,6 @@ yarn-error.log*
 
 # temp directory
 /content
+/test-results/
+/playwright-report/
+/playwright/.cache/

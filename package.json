@@ -12,7 +12,7 @@
     "lint": "next lint",
     "clean:next": "rm -rf .next",
     "clean": "rm -rf .next && rm -rf node_modules",
-    "test": "cypress open"
+    "test": "npx playwright test"
   },
   "dependencies": {
     "@octokit/core": "^3.6.0",
@@ -29,13 +29,13 @@
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.24.2",
     "@tailwindcss/line-clamp": "^0.4.0",
     "@tailwindcss/typography": "^0.5.2",
     "@types/node": "17.0.43",
     "@types/react": "18.0.12",
     "@types/react-dom": "18.0.5",
     "autoprefixer": "^10.4.7",
-    "cypress": "^10.3.1",
     "dotenv": "^16.0.1",
     "eslint": "8.17.0",
     "eslint-config-next": "12.1.6",
