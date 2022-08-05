@@ -1,16 +1,11 @@
 import fs from "fs";
 import path from "path";
 
-import * as React from "react";
 import HTMLReactParser from "html-react-parser";
-import rehypeStringify from "rehype-stringify";
-import remarkFrontmatter from "remark-frontmatter";
-import remarkGfm from "remark-gfm";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import { unified } from "unified";
+import * as React from "react";
 
 import IssueLayout from "@/components/IssueLayout";
+import { convertToHTML } from "@/lib/mdx";
 
 import type { Meta } from "@/types";
 import type {
@@ -74,17 +69,7 @@ export const getStaticProps: GetStaticProps<IssueData, Params> = async (
   const filePath = path.join(process.cwd(), "content", `${id}.md`);
   const file = fs.readFileSync(filePath, "utf8");
 
-  const vFile = await unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype)
-    .use(remarkFrontmatter, ["yaml"])
-    .use(rehypeStringify)
-    .process(file);
-
-  const html = String(vFile)
-    .replace(/\{\%\sblockquote\s\%\}/gi, "<blockquote>")
-    .replace(/\{\%\sendblockquote\s\%\}/gi, "</blockquote>");
+  const html = await convertToHTML(file);
 
   const meta = {
     title: extractTitle(file),
