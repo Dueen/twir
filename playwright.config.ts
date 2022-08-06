@@ -100,7 +100,10 @@ const config: PlaywrightTestConfig = {
   /* Run your local dev server before starting the tests */
   webServer: {
     timeout: 10 * 60 * 1000,
-    command: "npm run build && npm run start",
+    command:
+      process.env.NODE_ENV == "production"
+        ? "npm run build && npm run start"
+        : "npm run dev",
     port: 3000,
   },
 };

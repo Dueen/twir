@@ -20,27 +20,21 @@ import type {
 } from "next/types";
 type Issue = Pick<Issues[number], "date" | "id" | "title">;
 type Years = ExtractAtomValue<typeof yearsAtom>;
-type IndexData = {
-  allIssues: Issue[];
-};
 
 // prettier-ignore
-const sortByNewest = (a: Issue, b: Issue) => new Date(b.date).getTime() - new Date(a.date).getTime();
+const sortByNewest = (a: Issue, b: Issue) => b.date.getTime() - a.date.getTime();
 // prettier-ignore
-const sortByOldest = (a: Issue, b: Issue) => new Date(a.date).getTime() - new Date(b.date).getTime();
+const sortByOldest = (a: Issue, b: Issue) => a.date.getTime() - b.date.getTime();
 
 const filterYears = (issue: Issue, years: Years) =>
-  years.some((year) =>
-    isSameYear(new Date(Number(year), 0, 1), new Date(issue.date))
-  );
+  years.some((year) => isSameYear(new Date(Number(year), 0, 1), issue.date));
 
 const allIssuesAtom = atom<Issues>([]);
-const issuesAtom = atom<Array<any>>((get) => {
+const issuesAtom = atom<Issues>((get) => {
   const issues = get(allIssuesAtom);
-  const sortedIssues =
-    get(sortByAtom) === "newest"
-      ? issues.sort(sortByNewest)
-      : issues.sort(sortByOldest);
+  const sortedIssues = issues.sort(
+    get(sortByAtom) === "newest" ? sortByNewest : sortByOldest
+  );
 
   const years = get(yearsAtom);
   const filteredIssues = sortedIssues.filter((issues) =>
@@ -58,34 +52,39 @@ const formatDate = (date: Date) =>
 
 const DAY_IN_SECONDS = 24 * 60 * 60;
 
-export const getStaticProps: GetStaticProps<IndexData> = async () => {
-  const filePath = path.join(process.cwd(), "content/meta.json");
-  const allIssues = await readFile(filePath, "utf8");
-  const issues = JSON.parse(allIssues);
+export const getStaticProps: GetStaticProps = async () => {
+  const filePath = path.join(process.cwd(), "content", "meta.json");
+  const allIssues: Issues = JSON.parse(await readFile(filePath, "utf8"));
+
+  const allAvailableYears = [
+    ...new Set(
+      allIssues.map((issue) => new Date(issue.date).getFullYear().toString())
+    ),
+  ];
 
   return {
     props: {
-      allIssues: issues,
+      allIssues,
+      allAvailableYears,
     },
     revalidate: DAY_IN_SECONDS,
   };
 };
 
-const IssueEntry = ({ issue }: any) => {
-  const date = new Date(issue.date);
-
+const IssueEntry = ({ issue }: { issue: Issues[number] }) => {
   return (
     <article
       aria-labelledby={`issue-${issue.id}-title`}
-      className={"py-10 sm:py-12"}
+      className="py-10 sm:py-12"
+      id={`issue-${issue.id}`}
     >
       <Container>
         <div className="flex flex-col items-start">
           <time
-            dateTime={date.toISOString()}
+            dateTime={issue.date.toISOString()}
             className="-order-1 font-mono text-sm leading-7 text-stone-500 dark:text-stone-300"
           >
-            {formatDate(date)}
+            {formatDate(issue.date)}
           </time>
           <h2
             id={`issue-${issue.id}-title`}
@@ -103,13 +102,19 @@ const IssueEntry = ({ issue }: any) => {
 
 type IndexPageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
-const IndexPage: NextPage<IndexPageProps> = ({ allIssues }) => {
-  //@ts-ignore
-  useHydrateAtoms([[allIssuesAtom, allIssues]]);
-
-  const sortBy = useAtomValue(sortByAtom);
-  React.useEffect(() => {}, [sortBy]);
-
+const IndexPage: NextPage<IndexPageProps> = ({
+  allIssues,
+  allAvailableYears,
+}) => {
+  useHydrateAtoms([
+    [
+      allIssuesAtom,
+      allIssues.map((issue: Issue) => ({
+        ...issue,
+        date: new Date(issue.date),
+      })),
+    ],
+  ]);
   const issues = useAtomValue(issuesAtom);
 
   return (
@@ -124,10 +129,13 @@ const IndexPage: NextPage<IndexPageProps> = ({ allIssues }) => {
       <IndexLayout>
         <div className="pt-8 pb-12 sm:pb-4">
           <div className="sticky top-0 z-10 flex w-full justify-start bg-stone-50/90 py-4 px-4  backdrop-blur-md  dark:bg-stone-800/80 sm:px-6 md:px-8 lg:px-20">
-            <ToolBar />
+            <ToolBar allAvailableYears={allAvailableYears} />
           </div>
-          <div className="relative divide-y divide-stone-200 dark:divide-stone-600 sm:mt-4 lg:mt-8 lg:border-t lg:border-stone-200 dark:lg:border-stone-600">
-            {issues.map((issue: any) => (
+          <div
+            id="issues-container"
+            className="relative divide-y divide-stone-200 dark:divide-stone-600 sm:mt-4 lg:mt-8 lg:border-t lg:border-stone-200 dark:lg:border-stone-600"
+          >
+            {issues.map((issue) => (
               <IssueEntry key={issue.id} issue={issue} />
             ))}
           </div>

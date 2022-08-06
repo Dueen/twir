@@ -13,43 +13,33 @@ type IssueLayoutProps = React.PropsWithChildren<{
   meta: Meta;
 }>;
 
-const NextButton = () => {
-  const { hasNext, prefetchNext, goToNext } = useNavigation();
-
-  if (!hasNext) {
-    return null;
-  }
-
-  return (
-    <li>
-      <button onClick={() => goToNext()} onPointerEnter={() => prefetchNext()}>
-        <a
-          className="group relative box-border flex justify-center rounded-md border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
-          title="Previous issue"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </a>
-      </button>
-    </li>
-  );
-};
-
-const PrevButton = () => {
+const NavButton = ({ dir }: { dir: "next" | "prev" }) => {
   const { hasPrev, prefetchPrev, goToPrev } = useNavigation();
+  const { hasNext, prefetchNext, goToNext } = useNavigation();
+  const Icon = dir === "next" ? ChevronRight : ChevronLeft;
 
-  if (!hasPrev) {
+  if (dir == "next" && !hasNext) {
+    return null;
+  }
+
+  if (dir == "prev" && !hasPrev) {
     return null;
   }
 
   return (
     <li>
-      <button onClick={() => goToPrev()} onPointerEnter={() => prefetchPrev()}>
-        <a
+      <button
+        onClick={() => (dir === "next" ? goToNext() : goToPrev())}
+        onPointerEnter={() =>
+          dir === "next" ? prefetchNext() : prefetchPrev()
+        }
+      >
+        <div
           className="group relative box-border flex justify-center rounded-md border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
           title="Previous issue"
         >
-          <ChevronLeft className="h-6 w-6" />
-        </a>
+          <Icon className="h-6 w-6" />
+        </div>
       </button>
     </li>
   );
@@ -101,16 +91,19 @@ const IssueLayout: React.FC<IssueLayoutProps> = ({ children, meta }) => {
               </Link>
             </div>
             <NavigationProvider>
-              <nav className="flex flex-col p-2">
+              <nav id="nav" className="flex flex-col p-2">
                 <ul className="space-y-1 border-t border-stone-400 pt-4 dark:border-stone-600">
-                  <NextButton />
-                  <PrevButton />
+                  <NavButton dir="next" />
+                  <NavButton dir="prev" />
                 </ul>
               </nav>
             </NavigationProvider>
           </div>
         </div>
-        <main className="max-h-screen flex-1 overflow-y-auto overflow-x-hidden">
+        <main
+          id="main"
+          className="max-h-screen flex-1 overflow-y-auto overflow-x-hidden"
+        >
           <AnimatePresence exitBeforeEnter>
             <motion.div
               className="prose prose-sm prose-stone mx-auto max-w-none bg-stone-50 p-10 prose-a:text-orange-500 hover:prose-a:text-orange-500 dark:prose-invert dark:bg-stone-800 dark:prose-a:text-orange-500/80 md:prose-base lg:prose-lg xl:prose-xl"
