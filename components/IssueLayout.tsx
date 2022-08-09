@@ -33,10 +33,11 @@ const NavButton = ({ dir }: { dir: "next" | "prev" }) => {
         onPointerEnter={() =>
           dir === "next" ? prefetchNext() : prefetchPrev()
         }
+        id={`nav-${dir}`}
       >
         <div
           className="group relative box-border flex justify-center rounded-md border-transparent stroke-orange-500 px-2 py-1.5 text-orange-500 hover:border-orange-400 hover:bg-orange-500 hover:stroke-white"
-          title="Previous issue"
+          title={dir == "next" ? "Next " : "Previous " + "issue"}
         >
           <Icon className="h-6 w-6" />
         </div>
