@@ -73,6 +73,7 @@ test.describe.parallel("Test filtering", () => {
       years.map(async (year) => {
         const yearLink = page.locator(`#year-${year}`);
         expect(yearLink).toBeDefined();
+        await yearLink.click();
       })
     );
   });
